@@ -5,11 +5,21 @@
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
+      "host": {
+        "default": "localhost",
+        "placeholder": "localhost",
+        "format": "hostname",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "title": "IP Address / Hostname",
+        "type": "string"
+      },
+      "port": {
+        "default": 1001,
+        "placeholder": 1001,
+        "maximum": 65535,
+        "required": true,
+        "title": "IP Port",
+        "type": "integer"
       }
     }
   }
