@@ -2,7 +2,7 @@
   "private": true,
   "displayName": "Homebridge Texecom Connect",
   "name": "homebridge-texecom-connect",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A Homebridge plugin to integrate with Texecom Connect SmartCom.",
   "license": "Apache-2.0",
   "repository": {
