@@ -1,8 +1,15 @@
 {
   "files.eol": "\n",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll": true,
+    "source.organizeImports": true
   },
-  "editor.rulers": [ 140 ],
-  "eslint.enable": true
+  "editor.rulers": [
+    140
+  ],
+  "files.exclude": {
+    "dist": true,
+    "node_modules": true,
+    ".vscode": true
+  }
 }
