@@ -1,6 +1,7 @@
 import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 import { Config } from './config';
-import { ExamplePlatformAccessory } from './platformAccessory';
+import { ConfigZone } from './config-zone';
+import { SensorAccessory } from './sensor-accessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 
 
@@ -9,13 +10,14 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
  * This class is the main constructor for your plugin, this is where you should
  * parse the user config and discover/register accessories with Homebridge.
  */
-export class TexecomConnectHomebridgePlatform implements DynamicPlatformPlugin {
+export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
   public readonly Service: typeof Service = this.api.hap.Service;
+
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
   // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+  public readonly accessories: PlatformAccessory<ConfigZone>[] = [];
 
   constructor(
     public readonly log: Logger,
@@ -40,7 +42,7 @@ export class TexecomConnectHomebridgePlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory: PlatformAccessory<ConfigZone>) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
@@ -74,6 +76,7 @@ export class TexecomConnectHomebridgePlatform implements DynamicPlatformPlugin {
       // number or MAC address
       const uuid = this.api.hap.uuid.generate(`${device.number}~${device.name}~${device.sensor}`);
 
+      this.log.info('UUID:', uuid);
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -84,12 +87,12 @@ export class TexecomConnectHomebridgePlatform implements DynamicPlatformPlugin {
           this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
           // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-          // existingAccessory.context.device = device;
+          // existingAccessory.context.device = device;sudo
           // this.api.updatePlatformAccessories([existingAccessory]);
 
           // create the accessory handler for the restored accessory
           // this is imported from `platformAccessory.ts`
-          new ExamplePlatformAccessory(this, existingAccessory);
+          new SensorAccessory(this, existingAccessory);
 
           // update accessory cache with any changes to the accessory details and information
           this.api.updatePlatformAccessories([existingAccessory]);
@@ -109,7 +112,7 @@ export class TexecomConnectHomebridgePlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, accessory);
+        new SensorAccessory(this, accessory);
 
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

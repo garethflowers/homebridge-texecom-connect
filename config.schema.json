@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "HomebridgeTexecomConnect",
+  "pluginAlias": "TexecomConnect",
   "pluginType": "platform",
   "schema": {
     "properties": {
