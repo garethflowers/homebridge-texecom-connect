@@ -1,9 +1,9 @@
 /**
- * This is the name of the platform that users will use to register the plugin in the Homebridge config.json
+ * The name of the Platform, as used ins `config.json`.
  */
 export const PLATFORM_NAME = 'TexecomConnect';
 
 /**
- * This must match the name of your plugin as defined the package.json
+ * The name of the Plugin.
  */
 export const PLUGIN_NAME = 'homebridge-texecom-connect';

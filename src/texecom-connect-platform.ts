@@ -1,9 +1,9 @@
 import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
+import * as net from 'net';
 import { Config } from './config';
 import { ConfigZone } from './config-zone';
 import { SensorAccessory } from './sensor-accessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-
 
 /**
  * HomebridgePlatform
@@ -17,42 +17,37 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
   // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory<ConfigZone>[] = [];
+  public readonly accessories: PlatformAccessory[] = [];
 
-  constructor(
+  private connection?: net.Socket;
+
+  public constructor(
     public readonly log: Logger,
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
     this.log.debug('Finished initializing platform:', this.config.platform);
 
-    // When this event is fired it means Homebridge has restored all cached accessories from disk.
-    // Dynamic Platform plugins should only register new accessories after this event was fired,
-    // in order to ensure they weren't added to homebridge already. This event can also be used
-    // to start discovery of new accessories.
-    this.api.on('didFinishLaunching', () => {
-      log.debug('Executed didFinishLaunching callback');
-      // run the method to discover / register your devices as accessories
-      this.deprecateDevices();
-      this.discoverDevices();
-    });
+    this.api
+      .on('didFinishLaunching', this.onStartUp.bind(this))
+      .on('shutdown', this.onShutdown.bind(this));
   }
 
   /**
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory<ConfigZone>) {
+  public configureAccessory(accessory: PlatformAccessory<ConfigZone>) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.push(accessory);
   }
 
-  deprecateDevices() {
+  private deprecateDevices() {
     this.accessories.forEach((existingAccessory) => {
       const isDeprecated = (this.config as Config).zones.find((device) =>
-        existingAccessory.UUID === this.api.hap.uuid.generate(`${device.number}~${device.name}~${device.sensor}`));
+        existingAccessory.UUID === this.api.hap.uuid.generate(`Z${Number(device.number).toFixed().padStart(3, '0')}`));
 
       if (!isDeprecated) {
         this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
@@ -66,57 +61,112 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
    * Accessories must only be registered once, previously created accessories
    * must not be registered again to prevent "duplicate UUID" errors.
    */
-  discoverDevices() {
-
-    // loop over the discovered devices and register each one if it has not already been registered
+  private discoverDevices() {
     for (const device of (this.config as Config).zones) {
+      this.log.info(`Z${Number(device.number).toFixed().padStart(3, '0')}`);
+      const uuid = this.api.hap.uuid.generate(`Z${Number(device.number).toFixed().padStart(3, '0')}`);
 
-      // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      const uuid = this.api.hap.uuid.generate(`${device.number}~${device.name}~${device.sensor}`);
-
-      this.log.info('UUID:', uuid);
-      // see if an accessory with the same uuid has already been registered and restored from
-      // the cached devices we stored in the `configureAccessory` method above
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
+      const displayName = `${device.name} ${device.sensor}`;
+
       if (existingAccessory) {
-        // the accessory already exists
         if (device) {
+          existingAccessory.displayName = displayName;
+          existingAccessory.context.device = device;
           this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
-          // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-          // existingAccessory.context.device = device;sudo
-          // this.api.updatePlatformAccessories([existingAccessory]);
-
-          // create the accessory handler for the restored accessory
-          // this is imported from `platformAccessory.ts`
           new SensorAccessory(this, existingAccessory);
 
-          // update accessory cache with any changes to the accessory details and information
           this.api.updatePlatformAccessories([existingAccessory]);
         }
       } else {
-        const displayName = `${device.name} ${device.sensor}`;
 
-        // the accessory does not yet exist, so we need to create it
         this.log.info('Adding new accessory:', displayName);
 
-        // create a new accessory
         const accessory = new this.api.platformAccessory(displayName, uuid);
 
-        // store a copy of the device object in the `accessory.context`
-        // the `context` property can be used to store any data about the accessory you may need
         accessory.context.device = device;
 
-        // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
         new SensorAccessory(this, accessory);
 
-        // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
     }
   }
+
+  /**
+   * Start the socket connection to SmartCom.
+   */
+  private socketStartUp(): void {
+    this.connection = net
+      .createConnection(this.config.port as number, this.config.host as string)
+      .on('connect', () => {
+        this.log.debug('Connected via IP');
+      })
+      .on('error', (error) => {
+        this.log.debug('Socket Error: ', error);
+      })
+      .on('end', () => {
+        this.log.debug('IP connection ended');
+      })
+      .on('close', () => {
+        this.log.debug('IP connection closed');
+      });
+
+    if (this.connection) {
+      this.connection.on('data', (data) => {
+        const dataString: string = data.toString().trim();
+
+        this.log.debug('SmartCom Event: ' + dataString);
+
+        if (!dataString.startsWith('"')) {
+          this.socketRestart();
+
+          return;
+        }
+
+        const uuid = this.api.hap.uuid.generate(dataString.substr(1, 4));
+
+        const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid);
+
+        existingAccessory
+          ?.getService(this.Service.MotionSensor)
+          ?.getCharacteristic(this.Characteristic.MotionDetected)
+          .setValue(dataString.substr(5) === '1');
+      });
+    }
+  }
+
+  /**
+   * Shutdown the socket connection to SmartCom.
+   */
+  private socketShutdown(): void {
+    if (this.connection?.destroyed === false) {
+      this.connection.destroy();
+    }
+  }
+
+  /**
+   * Restarts the socket connection to SmartCom.
+   */
+  private socketRestart(): void {
+    this.log.debug('Socket restart');
+
+    this.socketShutdown();
+
+    setTimeout(this.socketStartUp.bind(this), 5000);
+  }
+
+  private onStartUp(): void {
+    this.deprecateDevices();
+    this.discoverDevices();
+
+    this.socketStartUp();
+  }
+
+  private onShutdown(): void {
+    this.socketShutdown();
+  }
+
 }
