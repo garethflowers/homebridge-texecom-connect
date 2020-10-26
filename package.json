@@ -1,8 +1,11 @@
 {
+  "author": {
+    "name": "Gareth Flowers",
+    "url": "https://garethflowers.dev"
+  },
   "bugs": {
     "url": "https://github.com/garethflowers/homebridge-texecom-connect/issues"
   },
-  "dependencies": {},
   "description": "A Homebridge plugin to integrate with Texecom Connect SmartCom.",
   "devDependencies": {
     "@types/node": "^14.11.8",
