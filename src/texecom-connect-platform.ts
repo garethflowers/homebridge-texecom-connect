@@ -116,7 +116,12 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
     if (this.connection) {
       this.connection.on('data', (data) => {
-        const dataString: string = data.toString().trim();
+        const dataString: string = data
+          .toString()
+          .trim()
+          .split('/n')
+          .pop()
+          ?? '';
 
         this.log.debug('SmartCom Event: ' + dataString);
 
