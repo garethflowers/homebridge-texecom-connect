@@ -3,6 +3,7 @@
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "lib": [],
     "module": "commonjs",
     "noImplicitAny": true,
