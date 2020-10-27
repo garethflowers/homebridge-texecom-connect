@@ -1,4 +1,5 @@
 import { PlatformConfig } from "homebridge";
+import { ConfigArea } from "./config-area";
 import { ConfigZone } from "./config-zone";
 
 export interface Config
@@ -9,5 +10,7 @@ export interface Config
 	port: number;
 
 	zones: ConfigZone[];
+
+	areas: ConfigArea[];
 
 }

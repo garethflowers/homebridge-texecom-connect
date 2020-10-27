@@ -18,24 +18,52 @@
 				"title": "IP Port",
 				"type": "integer"
 			},
-			"zones": {
+			"areas": {
 				"expandable": true,
 				"items": {
 					"properties": {
+						"accessory": {
+							"default": "security",
+							"oneOf": [
+								{
+									"enum": [
+										"security"
+									],
+									"title": "Alarm"
+								}
+							],
+							"required": true,
+							"title": "Area Type",
+							"type": "string"
+						},
 						"name": {
+							"default": "Area 1",
 							"minLength": 1,
-							"placeholder": "e.g. Living Room, Bedroom, Kitchen",
+							"placeholder": "e.g. House",
 							"required": true,
 							"title": "Name",
 							"type": "string"
 						},
 						"number": {
+							"default": 1,
 							"minimum": 1,
 							"placeholder": "e.g. 1, 2, 3",
 							"required": true,
 							"type": "number"
-						},
-						"sensor": {
+						}
+					},
+					"required": true,
+					"title": "Areas",
+					"type": "object",
+					"uniqueItems": true
+				},
+				"type": "array"
+			},
+			"zones": {
+				"expandable": true,
+				"items": {
+					"properties": {
+						"accessory": {
 							"default": "motion",
 							"oneOf": [
 								{
@@ -58,13 +86,27 @@
 								},
 								{
 									"enum": [
-										"carbonmonoxide"
+										"carbon-monoxide"
 									],
 									"title": "Carbon Monoxide"
 								}
 							],
 							"required": true,
+							"title": "Sensor Type",
 							"type": "string"
+						},
+						"name": {
+							"minLength": 1,
+							"placeholder": "e.g. Living Room, Bedroom, Kitchen",
+							"required": true,
+							"title": "Name",
+							"type": "string"
+						},
+						"number": {
+							"minimum": 1,
+							"placeholder": "e.g. 1, 2, 3",
+							"required": true,
+							"type": "number"
 						}
 					},
 					"required": true,

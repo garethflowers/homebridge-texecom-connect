@@ -1,5 +1,5 @@
 import { PlatformAccessory, Service, WithUUID } from "homebridge";
-import { ConfigZone } from "../config-zone";
+import { ConfigAccessory } from "../config/config-accessory";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
 /**
@@ -11,8 +11,7 @@ export abstract class TexecomAccessory {
 
 	public constructor(
 		protected readonly platform: TexecomConnectPlatform,
-		protected readonly accessory: PlatformAccessory,
-		protected readonly zone: ConfigZone,
+		protected readonly accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
 		protected serviceType: WithUUID<typeof Service>,
 	) {
 		this.accessory
@@ -27,10 +26,10 @@ export abstract class TexecomAccessory {
 
 		this.service.setCharacteristic(
 			this.platform.Characteristic.Name,
-			this.zone.name);
+			this.accessory.context.config.name);
 
 		this.platform.accessoryEvent.addListener(
-			this.platform.getZoneId(this.zone),
+			this.platform.getAccessoryId(this.accessory.context.config),
 			this.listener.bind(this));
 	}
 
