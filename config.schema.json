@@ -1,81 +1,81 @@
 {
-  "pluginAlias": "TexecomConnect",
-  "pluginType": "platform",
-  "schema": {
-    "properties": {
-      "host": {
-        "default": "localhost",
-        "format": "hostname",
-        "minLength": 1,
-        "required": true,
-        "title": "IP Address / Hostname",
-        "type": "string"
-      },
-      "port": {
-        "default": 1001,
-        "maximum": 65535,
-        "required": true,
-        "title": "IP Port",
-        "type": "integer"
-      },
-      "zones": {
-        "expandable": true,
-        "items": {
-          "properties": {
-            "name": {
-              "minLength": 1,
-              "placeholder": "e.g. Living Room, Bedroom, Kitchen",
-              "required": true,
-              "title": "Name",
-              "type": "string"
-            },
-            "number": {
-              "minimum": 1,
-              "placeholder": "e.g. 1, 2, 3",
-              "required": true,
-              "type": "number"
-            },
-            "sensor": {
-              "default": "motion",
-              "oneOf": [
-                {
-                  "enum": [
-                    "motion"
-                  ],
-                  "title": "Motion Sensor"
-                },
-                {
-                  "enum": [
-                    "contact"
-                  ],
-                  "title": "Contact Sensor"
-                },
-                {
-                  "enum": [
-                    "smoke"
-                  ],
-                  "title": "Smoke"
-                },
-                {
-                  "enum": [
-                    "carbonmonoxide"
-                  ],
-                  "title": "Carbon Monoxide"
-                }
-              ],
-              "required": true,
-              "type": "string"
-            }
-          },
-          "required": true,
-          "title": "Zones",
-          "type": "object",
-          "uniqueItems": true
-        },
-        "type": "array"
-      }
-    },
-    "type": "object"
-  },
-  "singular": true
+	"pluginAlias": "TexecomConnect",
+	"pluginType": "platform",
+	"schema": {
+		"properties": {
+			"host": {
+				"default": "localhost",
+				"format": "hostname",
+				"minLength": 1,
+				"required": true,
+				"title": "IP Address / Hostname",
+				"type": "string"
+			},
+			"port": {
+				"default": 1001,
+				"maximum": 65535,
+				"required": true,
+				"title": "IP Port",
+				"type": "integer"
+			},
+			"zones": {
+				"expandable": true,
+				"items": {
+					"properties": {
+						"name": {
+							"minLength": 1,
+							"placeholder": "e.g. Living Room, Bedroom, Kitchen",
+							"required": true,
+							"title": "Name",
+							"type": "string"
+						},
+						"number": {
+							"minimum": 1,
+							"placeholder": "e.g. 1, 2, 3",
+							"required": true,
+							"type": "number"
+						},
+						"sensor": {
+							"default": "motion",
+							"oneOf": [
+								{
+									"enum": [
+										"motion"
+									],
+									"title": "Motion Sensor"
+								},
+								{
+									"enum": [
+										"contact"
+									],
+									"title": "Contact Sensor"
+								},
+								{
+									"enum": [
+										"smoke"
+									],
+									"title": "Smoke"
+								},
+								{
+									"enum": [
+										"carbonmonoxide"
+									],
+									"title": "Carbon Monoxide"
+								}
+							],
+							"required": true,
+							"type": "string"
+						}
+					},
+					"required": true,
+					"title": "Zones",
+					"type": "object",
+					"uniqueItems": true
+				},
+				"type": "array"
+			}
+		},
+		"type": "object"
+	},
+	"singular": true
 }
