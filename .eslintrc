@@ -19,7 +19,7 @@
     ],
     "indent": [
       "error",
-      2,
+      "tab",
       {
         "SwitchCase": 1
       }

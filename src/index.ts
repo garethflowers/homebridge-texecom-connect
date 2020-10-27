@@ -6,5 +6,5 @@ import { TexecomConnectPlatform } from "./texecom-connect-platform";
  * This method registers the platform with Homebridge
  */
 export = (api: API): void => {
-  api.registerPlatform(PLATFORM_NAME, TexecomConnectPlatform);
+	api.registerPlatform(PLATFORM_NAME, TexecomConnectPlatform);
 };

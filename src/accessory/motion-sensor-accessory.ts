@@ -7,26 +7,26 @@ import { TexecomAccessory } from "./texecom-accessory";
  * Motion Sensor Accessory
  */
 export class MotionSensorAccessory
-  extends TexecomAccessory {
+	extends TexecomAccessory {
 
-  public constructor(
-    platform: TexecomConnectPlatform,
-    accessory: PlatformAccessory,
-    zone: ConfigZone,
-  ) {
-    super(
-      platform,
-      accessory,
-      zone,
-      platform.Service.MotionSensor);
-  }
+	public constructor(
+		platform: TexecomConnectPlatform,
+		accessory: PlatformAccessory,
+		zone: ConfigZone,
+	) {
+		super(
+			platform,
+			accessory,
+			zone,
+			platform.Service.MotionSensor);
+	}
 
-  protected listener(
-    value: number,
-  ): void {
-    this.service
-      .getCharacteristic(this.platform.Characteristic.MotionDetected)
-      .setValue(value);
-  }
+	protected listener(
+		value: number,
+	): void {
+		this.service
+			.getCharacteristic(this.platform.Characteristic.MotionDetected)
+			.setValue(value);
+	}
 
 }
