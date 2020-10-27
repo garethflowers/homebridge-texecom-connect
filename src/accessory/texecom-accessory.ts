@@ -1,6 +1,6 @@
-import { PlatformAccessory, Service, WithUUID } from 'homebridge';
-import { ConfigZone } from '../config-zone';
-import { TexecomConnectPlatform } from '../texecom-connect-platform';
+import { PlatformAccessory, Service, WithUUID } from "homebridge";
+import { ConfigZone } from "../config-zone";
+import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
 /**
  * Texecom Accessory
@@ -17,9 +17,9 @@ export abstract class TexecomAccessory {
   ) {
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
-      ?.setCharacteristic(this.platform.Characteristic.Manufacturer, 'Texecom')
-      ?.setCharacteristic(this.platform.Characteristic.Model, 'Texecom Accessory')
-      ?.setCharacteristic(this.platform.Characteristic.SerialNumber, 'Unknown');
+      ?.setCharacteristic(this.platform.Characteristic.Manufacturer, "Texecom")
+      ?.setCharacteristic(this.platform.Characteristic.Model, "Texecom Accessory")
+      ?.setCharacteristic(this.platform.Characteristic.SerialNumber, "Unknown");
 
     this.service =
       this.accessory.getService(this.serviceType)

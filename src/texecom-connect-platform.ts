@@ -1,13 +1,13 @@
-import { EventEmitter } from 'events';
-import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
-import * as net from 'net';
-import { CarbonMonoxideSensorAccessory } from './accessory/carbon-monoxide-sensor-accessory';
-import { ContactSensorAccessory } from './accessory/contact-sensor-accessory';
-import { MotionSensorAccessory } from './accessory/motion-sensor-accessory';
-import { SmokeSensorAccessory } from './accessory/smoke-sensor-accessory';
-import { Config } from './config';
-import { ConfigZone } from './config-zone';
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
+import { EventEmitter } from "events";
+import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from "homebridge";
+import * as net from "net";
+import { CarbonMonoxideSensorAccessory } from "./accessory/carbon-monoxide-sensor-accessory";
+import { ContactSensorAccessory } from "./accessory/contact-sensor-accessory";
+import { MotionSensorAccessory } from "./accessory/motion-sensor-accessory";
+import { SmokeSensorAccessory } from "./accessory/smoke-sensor-accessory";
+import { Config } from "./config";
+import { ConfigZone } from "./config-zone";
+import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
 
 /**
  * Texecom Connect Platform.
@@ -30,8 +30,8 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     this.api
-      .on('didFinishLaunching', this.onStartUp.bind(this))
-      .on('shutdown', this.onShutdown.bind(this));
+      .on("didFinishLaunching", this.onStartUp.bind(this))
+      .on("shutdown", this.onShutdown.bind(this));
   }
 
   /**
@@ -59,7 +59,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
   public getZoneId(
     device: ConfigZone,
   ): string {
-    return `Z${Number(device.number).toFixed().padStart(3, '0')}`;
+    return `Z${Number(device.number).toFixed().padStart(3, "0")}`;
   }
 
   /**
@@ -93,13 +93,13 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
     accessory.context.zone = zone;
 
     switch (zone.sensor) {
-      case 'contact':
+      case "contact":
         new ContactSensorAccessory(this, accessory, zone);
         break;
-      case 'smoke':
+      case "smoke":
         new SmokeSensorAccessory(this, accessory, zone);
         break;
-      case 'carbonmonoxide':
+      case "carbonmonoxide":
         new CarbonMonoxideSensorAccessory(this, accessory, zone);
         break;
       default:
@@ -113,24 +113,24 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
   private socketStartUp(): void {
     this.connection = net
       .createConnection(this.config.port as number, this.config.host as string)
-      .on('connect', () => {
-        this.log.debug('Socket Connected: %s:%s', this.config.host, this.config.port);
+      .on("connect", () => {
+        this.log.debug("Socket Connected: %s:%s", this.config.host, this.config.port);
       })
-      .on('error', (error) => {
-        this.log.debug('Socket Error: ', error);
+      .on("error", (error) => {
+        this.log.debug("Socket Error: ", error);
       })
-      .on('close', () => {
-        this.log.debug('Socket Closed');
+      .on("close", () => {
+        this.log.debug("Socket Closed");
       })
-      .on('data', (data) => {
+      .on("data", (data) => {
         const dataString: string = data
           .toString()
           .trim()
-          .split('/n')
+          .split("/n")
           .pop()
-          ?? '';
+          ?? "";
 
-        if (!dataString.startsWith('"')) {
+        if (!dataString.startsWith("\"")) {
           this.socketRestart();
 
           return;
@@ -141,7 +141,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
           id: dataString.substr(1, 4),
         };
 
-        this.log.debug('Socket Data: ', parsedCommand);
+        this.log.debug("Socket Data: ", parsedCommand);
         this.accessoryEvent.emit(parsedCommand.id, parsedCommand.action);
       });
   }
@@ -159,7 +159,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
    * Restarts the socket connection to SmartCom.
    */
   private socketRestart(): void {
-    this.log.debug('Socket restart');
+    this.log.debug("Socket restart");
 
     this.socketShutdown();
 

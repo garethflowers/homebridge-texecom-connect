@@ -1,7 +1,7 @@
-import { PlatformAccessory } from 'homebridge';
-import { ConfigZone } from '../config-zone';
-import { TexecomConnectPlatform } from '../texecom-connect-platform';
-import { TexecomAccessory } from './texecom-accessory';
+import { PlatformAccessory } from "homebridge";
+import { ConfigZone } from "../config-zone";
+import { TexecomConnectPlatform } from "../texecom-connect-platform";
+import { TexecomAccessory } from "./texecom-accessory";
 
 /**
  * Motion Sensor Accessory

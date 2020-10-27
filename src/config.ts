@@ -1,5 +1,5 @@
-import { PlatformConfig } from 'homebridge';
-import { ConfigZone } from './config-zone';
+import { PlatformConfig } from "homebridge";
+import { ConfigZone } from "./config-zone";
 
 export interface Config
 	extends PlatformConfig {
