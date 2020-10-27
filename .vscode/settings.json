@@ -1,15 +1,19 @@
 {
-  "files.eol": "\n",
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.organizeImports": true
-  },
-  "editor.rulers": [
-    140
-  ],
-  "files.exclude": {
-    "dist": true,
-    "node_modules": true,
-    ".vscode": true
-  }
+	"cSpell.words": [
+		"texecom",
+		"placeholder"
+	],
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true,
+		"source.organizeImports": true
+	},
+	"editor.rulers": [
+		140
+	],
+	"files.eol": "\n",
+	"files.exclude": {
+		".vscode": true,
+		"dist": true,
+		"node_modules": true
+	}
 }
