@@ -1,14 +1,16 @@
+import { EventEmitter } from 'events';
 import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 import * as net from 'net';
+import { CarbonMonoxideSensorAccessory } from './accessory/carbon-monoxide-sensor-accessory';
+import { ContactSensorAccessory } from './accessory/contact-sensor-accessory';
+import { MotionSensorAccessory } from './accessory/motion-sensor-accessory';
+import { SmokeSensorAccessory } from './accessory/smoke-sensor-accessory';
 import { Config } from './config';
 import { ConfigZone } from './config-zone';
-import { SensorAccessory } from './sensor-accessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 
 /**
- * HomebridgePlatform
- * This class is the main constructor for your plugin, this is where you should
- * parse the user config and discover/register accessories with Homebridge.
+ * Texecom Connect Platform.
  */
 export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
@@ -16,82 +18,92 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
-  // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
 
   private connection?: net.Socket;
+
+  public accessoryEvent: EventEmitter = new EventEmitter();
 
   public constructor(
     public readonly log: Logger,
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.log.debug('Finished initializing platform:', this.config.platform);
-
     this.api
       .on('didFinishLaunching', this.onStartUp.bind(this))
       .on('shutdown', this.onShutdown.bind(this));
   }
 
   /**
-   * This function is invoked when homebridge restores cached accessories from disk at startup.
-   * It should be used to setup event handlers for characteristics and update respective values.
+   * Configure Accessory after Platform Init
    */
-  public configureAccessory(accessory: PlatformAccessory<ConfigZone>) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
-
-    // add the restored accessory to the accessories cache so we can track if it has already been registered
+  public configureAccessory(
+    accessory: PlatformAccessory<Record<string, ConfigZone>>,
+  ) {
     this.accessories.push(accessory);
   }
 
-  private deprecateDevices() {
-    this.accessories.forEach((existingAccessory) => {
-      const isDeprecated = (this.config as Config).zones.find((device) =>
-        existingAccessory.UUID === this.api.hap.uuid.generate(`Z${Number(device.number).toFixed().padStart(3, '0')}`));
+  /**
+   * Deprecate old Accessories which are invalid.
+   */
+  private deprecateAccessories() {
+    this.accessories
+      .filter((accessory) =>
+        !(this.config as Config).zones.some((zone: ConfigZone) =>
+          JSON.stringify(zone) === JSON.stringify(accessory.context.zone)))
+      .forEach((accessory) => {
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      });
+  }
 
-      if (!isDeprecated) {
-        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      }
-    });
+  public getZoneId(
+    device: ConfigZone,
+  ): string {
+    return `Z${Number(device.number).toFixed().padStart(3, '0')}`;
   }
 
   /**
-   * This is an example method showing how to register discovered accessories.
-   * Accessories must only be registered once, previously created accessories
-   * must not be registered again to prevent "duplicate UUID" errors.
+   * Discover new Accessories.
    */
   private discoverDevices() {
-    for (const device of (this.config as Config).zones) {
-      this.log.info(`Z${Number(device.number).toFixed().padStart(3, '0')}`);
-      const uuid = this.api.hap.uuid.generate(`Z${Number(device.number).toFixed().padStart(3, '0')}`);
+    for (const zone of (this.config as Config).zones) {
+      const uuid = this.api.hap.uuid.generate(this.getZoneId(zone));
 
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+      const existingAccessory = this.accessories
+        .find((accessory) => accessory.UUID === uuid);
 
-      const displayName = `${device.name} ${device.sensor}`;
-
-      if (existingAccessory) {
-        if (device) {
-          existingAccessory.displayName = displayName;
-          existingAccessory.context.device = device;
-          this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-
-          new SensorAccessory(this, existingAccessory);
-
-          this.api.updatePlatformAccessories([existingAccessory]);
-        }
+      if (existingAccessory !== undefined) {
+        this.initAccessory(existingAccessory, zone);
+        this.api.updatePlatformAccessories([existingAccessory]);
       } else {
+        const accessory = new this.api.platformAccessory(zone.name, uuid);
+        this.accessories.push(accessory);
 
-        this.log.info('Adding new accessory:', displayName);
-
-        const accessory = new this.api.platformAccessory(displayName, uuid);
-
-        accessory.context.device = device;
-
-        new SensorAccessory(this, accessory);
-
+        this.initAccessory(accessory, zone);
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
+    }
+  }
+
+  private initAccessory(
+    accessory: PlatformAccessory,
+    zone: ConfigZone,
+  ): void {
+    accessory.displayName = zone.name;
+    accessory.context.zone = zone;
+
+    switch (zone.sensor) {
+      case 'contact':
+        new ContactSensorAccessory(this, accessory, zone);
+        break;
+      case 'smoke':
+        new SmokeSensorAccessory(this, accessory, zone);
+        break;
+      case 'carbonmonoxide':
+        new CarbonMonoxideSensorAccessory(this, accessory, zone);
+        break;
+      default:
+        new MotionSensorAccessory(this, accessory, zone);
     }
   }
 
@@ -102,20 +114,15 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
     this.connection = net
       .createConnection(this.config.port as number, this.config.host as string)
       .on('connect', () => {
-        this.log.debug('Connected via IP');
+        this.log.debug('Socket Connected: %s:%s', this.config.host, this.config.port);
       })
       .on('error', (error) => {
         this.log.debug('Socket Error: ', error);
       })
-      .on('end', () => {
-        this.log.debug('IP connection ended');
-      })
       .on('close', () => {
-        this.log.debug('IP connection closed');
-      });
-
-    if (this.connection) {
-      this.connection.on('data', (data) => {
+        this.log.debug('Socket Closed');
+      })
+      .on('data', (data) => {
         const dataString: string = data
           .toString()
           .trim()
@@ -123,24 +130,20 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
           .pop()
           ?? '';
 
-        this.log.debug('SmartCom Event: ' + dataString);
-
         if (!dataString.startsWith('"')) {
           this.socketRestart();
 
           return;
         }
 
-        const uuid = this.api.hap.uuid.generate(dataString.substr(1, 4));
+        const parsedCommand = {
+          action: Number(dataString.substr(5)),
+          id: dataString.substr(1, 4),
+        };
 
-        const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid);
-
-        existingAccessory
-          ?.getService(this.Service.MotionSensor)
-          ?.getCharacteristic(this.Characteristic.MotionDetected)
-          .setValue(dataString.substr(5) === '1');
+        this.log.debug('Socket Data: ', parsedCommand);
+        this.accessoryEvent.emit(parsedCommand.id, parsedCommand.action);
       });
-    }
   }
 
   /**
@@ -160,16 +163,21 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
     this.socketShutdown();
 
-    setTimeout(this.socketStartUp.bind(this), 5000);
+    setTimeout(this.socketStartUp.bind(this), 10000);
   }
 
+  /**
+   * Start Up
+   */
   private onStartUp(): void {
-    this.deprecateDevices();
+    this.deprecateAccessories();
     this.discoverDevices();
-
     this.socketStartUp();
   }
 
+  /**
+   * Shutdown
+   */
   private onShutdown(): void {
     this.socketShutdown();
   }

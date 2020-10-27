@@ -4,6 +4,10 @@ export interface ConfigZone {
 
 	number: number;
 
-	sensor: 'motion' | 'contact' | 'smoke' | 'carbonmonoxide';
+	sensor:
+	| 'carbonmonoxide'
+	| 'contact'
+	| 'motion'
+	| 'smoke';
 
 }
