@@ -23,7 +23,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[] = [];
 
-	private connection?: net.Socket;
+	public connection?: net.Socket;
 
 	public accessoryEvent: EventEmitter = new EventEmitter();
 
@@ -175,9 +175,13 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			return;
 		}
 
-		this.accessoryEvent.emit(
-			dataString.substring(1, 5),
-			Number(dataString.substring(5)));
+		const state: number | string = Number(dataString.substring(5));
+		let event: string = dataString.substring(1, 5);
+		event = event.startsWith("Y") || event.startsWith("N")
+			? event.substring(0, 1)
+			: event;
+
+		this.accessoryEvent.emit(event, state);
 	}
 
 	/**

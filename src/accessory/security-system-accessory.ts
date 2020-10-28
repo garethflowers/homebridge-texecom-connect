@@ -27,8 +27,28 @@ export class SecuritySystemAccessory
 
 		// Armed
 		this.platform.accessoryEvent.addListener(
+			"Y",
+			this.listenerArmed.bind(this));
+		this.platform.accessoryEvent.addListener(
 			this.platform.getAccessoryId(this.accessory.context.config, "A"),
 			this.listenerArmed.bind(this));
+
+		// Disarmed
+		this.platform.accessoryEvent.addListener(
+			"N",
+			this.listener.bind(this));
+
+		this.checkCurrentStates();
+	}
+
+	private checkCurrentStates(): void {
+		if (this.platform.connection?.writable) {
+			this.platform.connection.write("ASTATUS");
+		}
+
+		setInterval(
+			this.checkCurrentStates.bind(this),
+			60000);
 	}
 
 	protected listener(): void {
