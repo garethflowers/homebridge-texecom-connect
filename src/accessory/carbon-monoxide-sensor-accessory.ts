@@ -16,14 +16,15 @@ export class CarbonMonoxideSensorAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.SmokeSensor);
+			platform.Service.SmokeSensor,
+			platform.Characteristic.CarbonMonoxideDetected,
+			platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL);
 	}
 
 	protected listener(
 		value: number,
 	): void {
-		this.service
-			.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
+		this.characteristic
 			.setValue(value === this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
 				? this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
 				: this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL);

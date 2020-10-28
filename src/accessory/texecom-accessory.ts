@@ -1,4 +1,4 @@
-import { PlatformAccessory, Service, WithUUID } from "homebridge";
+import { Callback, Characteristic, CharacteristicValue, PlatformAccessory, Service, WithUUID } from "homebridge";
 import { ConfigAccessory } from "../config/config-accessory";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
@@ -9,10 +9,17 @@ export abstract class TexecomAccessory {
 
 	protected readonly service: Service;
 
+	protected get characteristic(): Characteristic {
+		return this.service.getCharacteristic(this.serviceCharacteristic);
+	}
+
 	public constructor(
 		protected readonly platform: TexecomConnectPlatform,
 		protected readonly accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
-		protected serviceType: WithUUID<typeof Service>,
+		protected readonly serviceType: WithUUID<typeof Service>,
+		protected readonly serviceCharacteristic: WithUUID<{ new(): Characteristic }>,
+
+		protected state: CharacteristicValue,
 	) {
 		this.accessory
 			.getService(this.platform.Service.AccessoryInformation)
@@ -28,9 +35,15 @@ export abstract class TexecomAccessory {
 			this.platform.Characteristic.Name,
 			this.accessory.context.config.name);
 
-		this.platform.accessoryEvent.addListener(
-			this.platform.getAccessoryId(this.accessory.context.config),
-			this.listener.bind(this));
+		this.platform.accessoryEvent
+			.addListener(
+				this.platform.getAccessoryId(this.accessory.context.config),
+				this.listener.bind(this));
+
+		this.characteristic
+			.on("get", (callback: Callback) => {
+				callback(null, this.state);
+			});
 	}
 
 	protected abstract listener(

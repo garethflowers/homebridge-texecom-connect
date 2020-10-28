@@ -16,15 +16,18 @@ export class MotionSensorAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.MotionSensor);
+			platform.Service.MotionSensor,
+			platform.Characteristic.MotionDetected,
+			platform.Characteristic.ContactSensorState.CONTACT_DETECTED);
 	}
 
 	protected listener(
 		value: number,
 	): void {
-		this.service
-			.getCharacteristic(this.platform.Characteristic.MotionDetected)
-			.setValue(value);
+		this.characteristic
+			.setValue(value === this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED
+				? this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED
+				: this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
 	}
 
 }

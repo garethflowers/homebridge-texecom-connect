@@ -16,14 +16,16 @@ export class SmokeSensorAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.SmokeSensor);
+			platform.Service.SmokeSensor,
+			platform.Characteristic.SmokeDetected,
+			platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
+		);
 	}
 
 	protected listener(
 		value: number,
 	): void {
-		this.service
-			.getCharacteristic(this.platform.Characteristic.SmokeDetected)
+		this.characteristic
 			.setValue(value === this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
 				? this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
 				: this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED);

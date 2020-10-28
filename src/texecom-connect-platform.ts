@@ -11,8 +11,6 @@ import { ConfigAccessory } from "./config/config-accessory";
 import { ConfigArea } from "./config/config-area";
 import { ConfigZone } from "./config/config-zone";
 import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
-import { SocketCommand } from "./socket-command";
-import { SocketCommandAction } from "./socket-command-action";
 
 /**
  * Texecom Connect Platform.
@@ -58,9 +56,13 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 */
 	private deprecateAccessories() {
 		this.accessories
-			.filter((accessory) =>
-				!this.configAccessories.some((configAccessory: ConfigArea | ConfigZone) =>
-					JSON.stringify(configAccessory) === JSON.stringify(accessory.context.config)))
+			.filter((accessory) => {
+				return !this.configAccessories.some((configAccessory: ConfigArea | ConfigZone) =>
+					configAccessory.accessory === accessory.context.config.accessory
+					&& configAccessory.name === accessory.context.config.name
+					&& configAccessory.number === accessory.context.config.number
+					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory)));
+			})
 			.forEach((accessory) => {
 				this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
 			});
@@ -68,37 +70,40 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 	public getAccessoryId(
 		configAccessory: ConfigAccessory,
+		prefix?: "D" | "Z" | string,
 	): string {
-		const number: string = Number(configAccessory.number)
+		const idNumber: string = Number(configAccessory.number)
 			.toFixed()
 			.padStart(3, "0");
 
-		const prefix: "A" | "Z" = configAccessory.accessory === "security"
-			? "A"
-			: "Z";
+		const idPrefix: "D" | "Z" | string = prefix
+			?? (configAccessory.accessory === "security"
+				? "D"
+				: "Z");
 
-		return prefix + number;
+		return idPrefix + idNumber;
 	}
 
 	/**
 	 * Discover new Accessories.
 	 */
 	private discoverDevices() {
-		this.configAccessories.forEach((configAccessory: ConfigArea | ConfigZone) => {
-			const uuid = this.api.hap.uuid.generate(this.getAccessoryId(configAccessory));
+		this.configAccessories
+			.forEach((configAccessory: ConfigArea | ConfigZone) => {
+				const uuid = this.api.hap.uuid.generate(this.getAccessoryId(configAccessory));
 
-			let accessory: PlatformAccessory<Record<string, ConfigAccessory>> | undefined =
-				this.accessories.find((accessory) => accessory.UUID === uuid);
+				let accessory: PlatformAccessory<Record<string, ConfigAccessory>> | undefined =
+					this.accessories.find((accessory) => accessory.UUID === uuid);
 
-			if (accessory === undefined) {
-				accessory = new this.api.platformAccessory(configAccessory.name, uuid);
-				this.accessories.push(accessory);
-				this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-			}
+				if (accessory === undefined) {
+					accessory = new this.api.platformAccessory(configAccessory.name, uuid);
+					this.accessories.push(accessory);
+					this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+				}
 
-			this.initAccessory(accessory, configAccessory);
-			this.api.updatePlatformAccessories([accessory]);
-		});
+				this.initAccessory(accessory, configAccessory);
+				this.api.updatePlatformAccessories([accessory]);
+			});
 	}
 
 	private initAccessory(
@@ -170,38 +175,9 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			return;
 		}
 
-		let action: SocketCommandAction | undefined;
-
-		switch (dataString.substring(0, 2)) {
-			case "\"Z":
-				action = "zone";
-				break;
-			case "\"X":
-				action = "area-arming";
-				break;
-			case "\"A":
-				action = "area";
-				break;
-			case "\"D":
-				action = "area-disarmed";
-				break;
-			default:
-				action = undefined;
-		}
-
-		if (action === undefined) {
-			return;
-		}
-
-		const parsedCommand: SocketCommand = {
-			action,
-			id: dataString.substring(1, 5),
-			value: Number(dataString.substring(5)),
-		};
-
-		this.log.debug("Data:", parsedCommand);
-
-		this.accessoryEvent.emit(parsedCommand.id, parsedCommand.value);
+		this.accessoryEvent.emit(
+			dataString.substring(1, 5),
+			Number(dataString.substring(5)));
 	}
 
 	/**
