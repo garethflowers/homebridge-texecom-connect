@@ -37,8 +37,9 @@
 		"url": "git://github.com/garethflowers/homebridge-texecom-connect.git"
 	},
 	"scripts": {
-		"build": "rimraf ./dist && tsc",
+		"build": "tsc",
 		"lint": "eslint .",
+		"prebuild": "rimraf ./dist",
 		"prepublishOnly": "npm run lint && npm run build",
 		"watch": "npm run build && npm link && nodemon"
 	},
