@@ -41,13 +41,26 @@ export abstract class TexecomAccessory {
 				this.listener.bind(this));
 
 		this.characteristic
-			.on("get", (callback: Callback) => {
-				callback(null, this.state);
-			});
+			.on("get", this.getCharacteristic.bind(this))
+			.on("set", this.setCharacteristic.bind(this));
 	}
 
 	protected abstract listener(
 		value: number,
 	): void;
+
+	protected getCharacteristic(
+		callback: Callback,
+	): void {
+		callback(null, this.state);
+	}
+
+	protected setCharacteristic(
+		value: CharacteristicValue,
+		callback: Callback,
+	): void {
+		this.state = value;
+		callback(null);
+	}
 
 }

@@ -25,10 +25,11 @@ export class SmokeSensorAccessory
 	protected listener(
 		value: number,
 	): void {
-		this.characteristic
-			.setValue(value === this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
+		this.characteristic.setValue(
+			value === this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
 				? this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
-				: this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED);
+				: this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
+		);
 	}
 
 }

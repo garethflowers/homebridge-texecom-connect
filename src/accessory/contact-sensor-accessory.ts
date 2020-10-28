@@ -24,10 +24,11 @@ export class ContactSensorAccessory
 	protected listener(
 		value: number,
 	): void {
-		this.characteristic
-			.setValue(value === this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+		this.characteristic.setValue(
+			value === this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
 				? this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
-				: this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED);
+				: this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED,
+		);
 	}
 
 }

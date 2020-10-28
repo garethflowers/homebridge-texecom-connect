@@ -24,10 +24,11 @@ export class CarbonMonoxideSensorAccessory
 	protected listener(
 		value: number,
 	): void {
-		this.characteristic
-			.setValue(value === this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
+		this.characteristic.setValue(
+			value === this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
 				? this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
-				: this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL);
+				: this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL,
+		);
 	}
 
 }
