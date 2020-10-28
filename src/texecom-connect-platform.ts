@@ -140,7 +140,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		this.connection = net
 			.createConnection(this.config.port as number, this.config.host as string)
 			.on("connect", () => {
-				this.log.debug("Socket: %s:%s", this.config.host, this.config.port);
+				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
 			})
 			.on("error", (error: Error) => {
 				this.log.debug("Socket Error:", error);
@@ -150,9 +150,11 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 				}
 			})
 			.on("close", (hadError: boolean) => {
-				hadError
-					? this.socketRestart()
-					: this.log.debug("Socket Closed");
+				if (hadError) {
+					this.socketRestart();
+				} else {
+					this.log.info("Disconnected from SmartCom - %s:%s", this.config.host, this.config.port);
+				}
 			})
 			.on("data", this.parseData.bind(this));
 	}
@@ -197,7 +199,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 * Restarts the socket connection to SmartCom.
 	 */
 	private socketRestart(): void {
-		this.log.debug("Socket Restart");
+		this.log.info("Reconnecting to SmartCom - %s:%s", this.config.host, this.config.port);
 
 		this.socketShutdown();
 
