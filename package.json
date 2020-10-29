@@ -24,8 +24,10 @@
 		"node": ">=10.17.0"
 	},
 	"keywords": [
+		"homebridge",
 		"homebridge-plugin",
 		"texecom",
+		"texecom-connect",
 		"security-system"
 	],
 	"license": "Apache-2.0",
