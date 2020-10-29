@@ -12,7 +12,7 @@
 				"type": "string"
 			},
 			"port": {
-				"default": 1001,
+				"default": 10001,
 				"maximum": 65535,
 				"required": true,
 				"title": "IP Port",
