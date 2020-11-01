@@ -2,7 +2,7 @@
 
 A [Homebridge](https://homebridge.io) plugins that exposes a [Texecom Connect](https://www.texe.com/uk/products/series/automation/texecom-connect/) enabled Alarm System to HomeKit.
 
-The following
+The following accessory types are currently supported:
 - Alarm Security System
 - Motion Sensors
 - Contact Sensors
