@@ -23,7 +23,6 @@
 				"items": {
 					"properties": {
 						"accessory": {
-							"default": "security",
 							"oneOf": [
 								{
 									"enum": [
@@ -37,7 +36,6 @@
 							"type": "string"
 						},
 						"name": {
-							"default": "Area 1",
 							"minLength": 1,
 							"placeholder": "e.g. House",
 							"required": true,
@@ -45,7 +43,6 @@
 							"type": "string"
 						},
 						"number": {
-							"default": 1,
 							"minimum": 1,
 							"placeholder": "e.g. 1, 2, 3",
 							"required": true,
@@ -64,7 +61,6 @@
 				"items": {
 					"properties": {
 						"accessory": {
-							"default": "motion",
 							"oneOf": [
 								{
 									"enum": [

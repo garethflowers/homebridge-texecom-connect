@@ -1,5 +1,8 @@
 # Changelog
 
+## NEXT
+-	FIX: Removes defaults on Zones and Areas in config
+
 ## 0.0.2 (2020-11-02)
 -	FIX: Defaults port to 10001 in config
 
