@@ -1,6 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    commit-message:
+      include: "scope"
+      prefix: "chore"
     directory: "/"
+    reviewers:
+      - "garethflowers"
     schedule:
       interval: "daily"
