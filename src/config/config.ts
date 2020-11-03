@@ -9,8 +9,8 @@ export interface Config
 
 	port: number;
 
-	zones: ConfigZone[];
+	zones?: ConfigZone[];
 
-	areas: ConfigArea[];
+	areas?: ConfigArea[];
 
 }
