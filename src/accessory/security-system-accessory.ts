@@ -51,7 +51,7 @@ export class SecuritySystemAccessory
 	protected getCharacteristic(
 		callback: Callback,
 	): void {
-		if (this.platform.connection?.writable) {
+		if (this.platform.connection?.writable === true) {
 			this.platform.connection.write("ASTATUS");
 		}
 
