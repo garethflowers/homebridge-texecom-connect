@@ -88,7 +88,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory)));
 			})
 			.forEach((accessory) => {
-				this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory ]);
+				this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory]);
 			});
 	}
 
@@ -101,16 +101,17 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 				const uuid: string = this.api.hap.uuid.generate(this.getAccessoryId(configAccessory));
 
 				let accessory: PlatformAccessory<Record<string, ConfigAccessory>> | undefined =
-					this.accessories.find((accessory) => accessory.UUID === uuid);
+					this.accessories.find((acc: PlatformAccessory<Record<string, ConfigAccessory>>) =>
+						acc.UUID === uuid);
 
 				if (accessory === undefined) {
 					accessory = new this.api.platformAccessory(configAccessory.name, uuid);
 					this.accessories.push(accessory);
-					this.api.registerPlatformAccessories(pluginName, platformName, [accessory ]);
+					this.api.registerPlatformAccessories(pluginName, platformName, [accessory]);
 				}
 
 				this.initAccessory(accessory, configAccessory);
-				this.api.updatePlatformAccessories([accessory ]);
+				this.api.updatePlatformAccessories([accessory]);
 			});
 	}
 
