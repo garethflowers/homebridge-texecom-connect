@@ -208,10 +208,10 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
 			})
 			.on("error", (error: Error) => {
-				this.log.debug("Socket Error:", error);
-
 				if ((error as unknown as { code: string }).code === "ECONNREFUSED") {
 					this.log.error("Unable to connect to %s:%s", this.config.host, this.config.port);
+				} else {
+					this.log.debug("Socket Error:", error);
 				}
 			})
 			.on("close", (hadError: boolean) => {
