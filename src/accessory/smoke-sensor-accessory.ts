@@ -16,9 +16,9 @@ export class SmokeSensorAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.SmokeSensor,
-			platform.Characteristic.SmokeDetected,
-			platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
+			platform.service.SmokeSensor,
+			platform.characteristic.SmokeDetected,
+			platform.characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
 		);
 	}
 
@@ -26,9 +26,9 @@ export class SmokeSensorAccessory
 		value: number,
 	): void {
 		this.characteristic.setValue(
-			value === this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
-				? this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED
-				: this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
+			value === this.platform.characteristic.SmokeDetected.SMOKE_DETECTED
+				? this.platform.characteristic.SmokeDetected.SMOKE_DETECTED
+				: this.platform.characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
 		);
 	}
 

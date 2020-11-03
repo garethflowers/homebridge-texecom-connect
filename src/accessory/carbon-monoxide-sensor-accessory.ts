@@ -16,18 +16,18 @@ export class CarbonMonoxideSensorAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.SmokeSensor,
-			platform.Characteristic.CarbonMonoxideDetected,
-			platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL);
+			platform.service.SmokeSensor,
+			platform.characteristic.CarbonMonoxideDetected,
+			platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL);
 	}
 
 	protected listener(
 		value: number,
 	): void {
 		this.characteristic.setValue(
-			value === this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
-				? this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
-				: this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL,
+			value === this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
+				? this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
+				: this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL,
 		);
 	}
 

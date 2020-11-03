@@ -18,11 +18,11 @@ export class SecuritySystemAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.SecuritySystem,
-			platform.Characteristic.SecuritySystemCurrentState,
-			platform.Characteristic.SecuritySystemCurrentState.DISARMED);
+			platform.service.SecuritySystem,
+			platform.characteristic.SecuritySystemCurrentState,
+			platform.characteristic.SecuritySystemCurrentState.DISARMED);
 
-		this.targetState = platform.Characteristic.SecuritySystemTargetState.DISARM;
+		this.targetState = platform.characteristic.SecuritySystemTargetState.DISARM;
 
 		// Arming
 		this.platform.accessoryEvent.addListener(
@@ -61,8 +61,8 @@ export class SecuritySystemAccessory
 	protected listener(): void {
 		// A00?,1
 		this.setServiceState(
-			this.platform.Characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.Characteristic.SecuritySystemTargetState.DISARM,
+			this.platform.characteristic.SecuritySystemCurrentState.DISARMED,
+			this.platform.characteristic.SecuritySystemTargetState.DISARM,
 		);
 	}
 
@@ -72,34 +72,34 @@ export class SecuritySystemAccessory
 		// A00?,0
 		this.setServiceState(
 			value > 1
-				? this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM
-				: this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM,
+				? this.platform.characteristic.SecuritySystemCurrentState.STAY_ARM
+				: this.platform.characteristic.SecuritySystemCurrentState.AWAY_ARM,
 			value > 1
-				? this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM
-				: this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM,
+				? this.platform.characteristic.SecuritySystemTargetState.STAY_ARM
+				: this.platform.characteristic.SecuritySystemTargetState.AWAY_ARM,
 		);
 	}
 
 	protected listenerArming(): void {
 		// X00?,0
 		this.setServiceState(
-			this.platform.Characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM,
+			this.platform.characteristic.SecuritySystemCurrentState.DISARMED,
+			this.platform.characteristic.SecuritySystemTargetState.AWAY_ARM,
 		);
 	}
 
 	protected listenerTriggered(): void {
 		// L00?,0
 		this.setServiceState(
-			this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED,
+			this.platform.characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED,
 		);
 	}
 
 	protected statusActive(): void {
 		// A00?,1
 		this.setServiceState(
-			this.platform.Characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.Characteristic.SecuritySystemTargetState.DISARM,
+			this.platform.characteristic.SecuritySystemCurrentState.DISARMED,
+			this.platform.characteristic.SecuritySystemTargetState.DISARM,
 		);
 	}
 
@@ -113,7 +113,7 @@ export class SecuritySystemAccessory
 		this.characteristic.setValue(this.state);
 
 		this.service
-			.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
+			.getCharacteristic(this.platform.characteristic.SecuritySystemTargetState)
 			.setValue(this.targetState);
 	}
 

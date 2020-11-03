@@ -22,17 +22,17 @@ export abstract class TexecomAccessory {
 		protected state: CharacteristicValue,
 	) {
 		this.accessory
-			.getService(this.platform.Service.AccessoryInformation)
-			?.setCharacteristic(this.platform.Characteristic.Manufacturer, "Texecom")
-			?.setCharacteristic(this.platform.Characteristic.Model, "Texecom Accessory")
-			?.setCharacteristic(this.platform.Characteristic.SerialNumber, "Unknown");
+			.getService(this.platform.service.AccessoryInformation)
+			?.setCharacteristic(this.platform.characteristic.Manufacturer, "Texecom")
+			?.setCharacteristic(this.platform.characteristic.Model, "Texecom Accessory")
+			?.setCharacteristic(this.platform.characteristic.SerialNumber, "Unknown");
 
 		this.service =
 			this.accessory.getService(this.serviceType)
 			?? this.accessory.addService(this.serviceType);
 
 		this.service.setCharacteristic(
-			this.platform.Characteristic.Name,
+			this.platform.characteristic.Name,
 			this.accessory.context.config.name);
 
 		this.platform.accessoryEvent

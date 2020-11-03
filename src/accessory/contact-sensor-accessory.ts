@@ -16,18 +16,18 @@ export class ContactSensorAccessory
 		super(
 			platform,
 			accessory,
-			platform.Service.ContactSensor,
-			platform.Characteristic.ContactSensorState,
-			platform.Characteristic.ContactSensorState.CONTACT_DETECTED);
+			platform.service.ContactSensor,
+			platform.characteristic.ContactSensorState,
+			platform.characteristic.ContactSensorState.CONTACT_DETECTED);
 	}
 
 	protected listener(
 		value: number,
 	): void {
 		this.characteristic.setValue(
-			value === this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
-				? this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
-				: this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED,
+			value === this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+				? this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+				: this.platform.characteristic.ContactSensorState.CONTACT_DETECTED,
 		);
 	}
 

@@ -10,24 +10,24 @@ import { Config } from "./config/config";
 import { ConfigAccessory } from "./config/config-accessory";
 import { ConfigArea } from "./config/config-area";
 import { ConfigZone } from "./config/config-zone";
-import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
+import { platformName, pluginName } from "./settings";
 
 /**
  * Texecom Connect Platform.
  */
 export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
-	public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
-
-	public readonly Service: typeof Service = this.api.hap.Service;
-
 	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[] = [];
 
-	public accessoryEvent: EventEmitter = new EventEmitter();
+	public readonly accessoryEvent: EventEmitter = new EventEmitter();
+
+	public readonly characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
 	public connection?: net.Socket;
 
-	private readonly configAccessories = [
+	public readonly service: typeof Service = this.api.hap.Service;
+
+	private readonly configAccessories: (ConfigArea | ConfigZone)[] = [
 		...(this.config as Config).areas ?? [],
 		...(this.config as Config).zones ?? [],
 	];
@@ -47,7 +47,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 */
 	public configureAccessory(
 		accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
-	) {
+	): void {
 		this.accessories.push(accessory);
 	}
 
@@ -70,7 +70,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	/**
 	 * Deprecate old Accessories which are invalid.
 	 */
-	private deprecateAccessories() {
+	private deprecateAccessories(): void {
 		this.accessories
 			.filter((accessory) => {
 				return !this.configAccessories.some((configAccessory: ConfigArea | ConfigZone) =>
@@ -80,17 +80,17 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory)));
 			})
 			.forEach((accessory) => {
-				this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+				this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory]);
 			});
 	}
 
 	/**
 	 * Discover new Accessories.
 	 */
-	private discoverDevices() {
+	private discoverDevices(): void {
 		this.configAccessories
 			.forEach((configAccessory: ConfigArea | ConfigZone) => {
-				const uuid = this.api.hap.uuid.generate(this.getAccessoryId(configAccessory));
+				const uuid: string = this.api.hap.uuid.generate(this.getAccessoryId(configAccessory));
 
 				let accessory: PlatformAccessory<Record<string, ConfigAccessory>> | undefined =
 					this.accessories.find((accessory) => accessory.UUID === uuid);
@@ -98,7 +98,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 				if (accessory === undefined) {
 					accessory = new this.api.platformAccessory(configAccessory.name, uuid);
 					this.accessories.push(accessory);
-					this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+					this.api.registerPlatformAccessories(pluginName, platformName, [accessory]);
 				}
 
 				this.initAccessory(accessory, configAccessory);
