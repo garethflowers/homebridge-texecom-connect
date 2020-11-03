@@ -17,7 +17,7 @@ export abstract class TexecomAccessory {
 		protected readonly platform: TexecomConnectPlatform,
 		protected readonly accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
 		protected readonly serviceType: WithUUID<typeof Service>,
-		protected readonly serviceCharacteristic: WithUUID<{ new(): Characteristic }>,
+		protected readonly serviceCharacteristic: WithUUID<new() => Characteristic>,
 
 		protected state: CharacteristicValue,
 	) {
@@ -45,10 +45,6 @@ export abstract class TexecomAccessory {
 			.on("set", this.setCharacteristic.bind(this));
 	}
 
-	protected abstract listener(
-		value: number,
-	): void;
-
 	protected getCharacteristic(
 		callback: Callback,
 	): void {
@@ -62,5 +58,9 @@ export abstract class TexecomAccessory {
 		this.state = value;
 		callback(null);
 	}
+
+	protected abstract listener(
+		value: number,
+	): void;
 
 }

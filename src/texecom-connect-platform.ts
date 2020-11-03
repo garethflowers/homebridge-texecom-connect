@@ -17,15 +17,15 @@ import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
  */
 export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
-	public readonly Service: typeof Service = this.api.hap.Service;
-
 	public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+
+	public readonly Service: typeof Service = this.api.hap.Service;
 
 	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[] = [];
 
-	public connection?: net.Socket;
-
 	public accessoryEvent: EventEmitter = new EventEmitter();
+
+	public connection?: net.Socket;
 
 	private readonly configAccessories = [
 		...(this.config as Config).areas ?? [],
@@ -51,6 +51,22 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		this.accessories.push(accessory);
 	}
 
+	public getAccessoryId(
+		configAccessory: ConfigAccessory,
+		prefix?: "D" | "Z" | string,
+	): string {
+		const idNumber: string = Number(configAccessory.number)
+			.toFixed()
+			.padStart(3, "0");
+
+		const idPrefix: "D" | "Z" | string = prefix
+			?? (configAccessory.accessory === "security"
+				? "D"
+				: "Z");
+
+		return idPrefix + idNumber;
+	}
+
 	/**
 	 * Deprecate old Accessories which are invalid.
 	 */
@@ -66,22 +82,6 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			.forEach((accessory) => {
 				this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
 			});
-	}
-
-	public getAccessoryId(
-		configAccessory: ConfigAccessory,
-		prefix?: "D" | "Z" | string,
-	): string {
-		const idNumber: string = Number(configAccessory.number)
-			.toFixed()
-			.padStart(3, "0");
-
-		const idPrefix: "D" | "Z" | string = prefix
-			?? (configAccessory.accessory === "security"
-				? "D"
-				: "Z");
-
-		return idPrefix + idNumber;
 	}
 
 	/**
@@ -134,29 +134,19 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	}
 
 	/**
-	 * Start the socket connection to SmartCom.
+	 * Shutdown
 	 */
-	private socketStartUp(): void {
-		this.connection = net
-			.createConnection(this.config.port as number, this.config.host as string)
-			.on("connect", () => {
-				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
-			})
-			.on("error", (error: Error) => {
-				this.log.debug("Socket Error:", error);
+	private onShutdown(): void {
+		this.socketShutdown();
+	}
 
-				if ((error as unknown as { code: string }).code === "ECONNREFUSED") {
-					this.log.error("Unable to connect to %s:%s", this.config.host, this.config.port);
-				}
-			})
-			.on("close", (hadError: boolean) => {
-				if (hadError) {
-					this.socketRestart();
-				} else {
-					this.log.info("Disconnected from SmartCom - %s:%s", this.config.host, this.config.port);
-				}
-			})
-			.on("data", this.parseData.bind(this));
+	/**
+	 * Start Up
+	 */
+	private onStartUp(): void {
+		this.deprecateAccessories();
+		this.discoverDevices();
+		this.socketStartUp();
 	}
 
 	private parseData(
@@ -187,15 +177,6 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	}
 
 	/**
-	 * Shutdown the socket connection to SmartCom.
-	 */
-	private socketShutdown(): void {
-		if (this.connection?.destroyed === false) {
-			this.connection.destroy();
-		}
-	}
-
-	/**
 	 * Restarts the socket connection to SmartCom.
 	 */
 	private socketRestart(): void {
@@ -209,19 +190,38 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	}
 
 	/**
-	 * Start Up
+	 * Shutdown the socket connection to SmartCom.
 	 */
-	private onStartUp(): void {
-		this.deprecateAccessories();
-		this.discoverDevices();
-		this.socketStartUp();
+	private socketShutdown(): void {
+		if (this.connection?.destroyed === false) {
+			this.connection.destroy();
+		}
 	}
 
 	/**
-	 * Shutdown
+	 * Start the socket connection to SmartCom.
 	 */
-	private onShutdown(): void {
-		this.socketShutdown();
+	private socketStartUp(): void {
+		this.connection = net
+			.createConnection(this.config.port as number, this.config.host as string)
+			.on("connect", () => {
+				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
+			})
+			.on("error", (error: Error) => {
+				this.log.debug("Socket Error:", error);
+
+				if ((error as unknown as { code: string }).code === "ECONNREFUSED") {
+					this.log.error("Unable to connect to %s:%s", this.config.host, this.config.port);
+				}
+			})
+			.on("close", (hadError: boolean) => {
+				if (hadError) {
+					this.socketRestart();
+				} else {
+					this.log.info("Disconnected from SmartCom - %s:%s", this.config.host, this.config.port);
+				}
+			})
+			.on("data", this.parseData.bind(this));
 	}
 
 }

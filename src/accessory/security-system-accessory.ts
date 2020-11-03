@@ -48,11 +48,35 @@ export class SecuritySystemAccessory
 			this.listenerTriggered.bind(this));
 	}
 
+	protected getCharacteristic(
+		callback: Callback,
+	): void {
+		if (this.platform.connection?.writable) {
+			this.platform.connection.write("ASTATUS");
+		}
+
+		super.getCharacteristic(callback);
+	}
+
 	protected listener(): void {
 		// A00?,1
 		this.setServiceState(
 			this.platform.Characteristic.SecuritySystemCurrentState.DISARMED,
 			this.platform.Characteristic.SecuritySystemTargetState.DISARM,
+		);
+	}
+
+	protected listenerArmed(
+		value: number,
+	): void {
+		// A00?,0
+		this.setServiceState(
+			value > 1
+				? this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM
+				: this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM,
+			value > 1
+				? this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM
+				: this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM,
 		);
 	}
 
@@ -71,17 +95,11 @@ export class SecuritySystemAccessory
 		);
 	}
 
-	protected listenerArmed(
-		value: number,
-	): void {
-		// A00?,0
+	protected statusActive(): void {
+		// A00?,1
 		this.setServiceState(
-			value > 1
-				? this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM
-				: this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM,
-			value > 1
-				? this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM
-				: this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM,
+			this.platform.Characteristic.SecuritySystemCurrentState.DISARMED,
+			this.platform.Characteristic.SecuritySystemTargetState.DISARM,
 		);
 	}
 
@@ -97,24 +115,6 @@ export class SecuritySystemAccessory
 		this.service
 			.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
 			.setValue(this.targetState);
-	}
-
-	protected statusActive(): void {
-		// A00?,1
-		this.setServiceState(
-			this.platform.Characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.Characteristic.SecuritySystemTargetState.DISARM,
-		);
-	}
-
-	protected getCharacteristic(
-		callback: Callback,
-	): void {
-		if (this.platform.connection?.writable) {
-			this.platform.connection.write("ASTATUS");
-		}
-
-		super.getCharacteristic(callback);
 	}
 
 }
