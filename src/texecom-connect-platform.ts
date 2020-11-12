@@ -35,16 +35,25 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 	public readonly service: typeof Service = this.api.hap.Service;
 
-	private readonly configAccessories: (ConfigArea | ConfigZone)[] = [
-		...(this.config as Config).areas ?? [],
-		...(this.config as Config).zones ?? [],
-	];
+	private readonly configAccessories: (ConfigArea | ConfigZone)[];
 
 	public constructor(
 		public readonly log: Logger,
 		public readonly config: PlatformConfig,
 		public readonly api: API,
 	) {
+		this.configAccessories = [
+			...(this.config as Config).areas ?? [],
+			...(this.config as Config).zones ?? [],
+		]
+			.filter((accessory: Partial<ConfigArea | ConfigZone>) =>
+				typeof accessory.name === "string"
+				&& accessory.name.length > 1
+				&& typeof accessory.number === "number"
+				&& accessory.number > 0);
+
+		this.sanitiseConfig();
+
 		this.api
 			.on("didFinishLaunching", this.onStartUp.bind(this))
 			.on("shutdown", this.onShutdown.bind(this));
@@ -183,6 +192,18 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			: event;
 
 		this.accessoryEvent.emit(event, state);
+	}
+
+	private sanitiseConfig(): void {
+		this.config.port = typeof this.config.port === "number"
+			&& this.config.port >= 1
+			&& this.config.port <= 65535
+			? Math.floor(this.config.port)
+			: 10001;
+
+		this.config.host = typeof this.config.host === "string"
+			? this.config.host.trim()
+			: "127.0.0.1";
 	}
 
 	/**
