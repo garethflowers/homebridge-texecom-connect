@@ -25,23 +25,38 @@ import { platformName, pluginName } from "./settings";
  */
 export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
-	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[] = [];
+	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[] ;
 
-	public readonly accessoryEvent: EventEmitter = new EventEmitter();
+	public readonly accessoryEvent: EventEmitter;
 
-	public readonly characteristic: typeof Characteristic = this.api.hap.Characteristic;
+	public readonly api: API;
+
+	public readonly characteristic: typeof Characteristic;
+
+	public readonly config: PlatformConfig;
 
 	public connection?: net.Socket;
 
-	public readonly service: typeof Service = this.api.hap.Service;
+	public readonly log: Logger;
+
+	public readonly service: typeof Service;
 
 	private readonly configAccessories: (ConfigArea | ConfigZone)[];
 
 	public constructor(
-		public readonly log: Logger,
-		public readonly config: PlatformConfig,
-		public readonly api: API,
+		log: Logger,
+		config: PlatformConfig,
+		api: API,
 	) {
+		this.api = api;
+		this.config = config;
+		this.log = log;
+
+		this.accessories = [];
+		this.accessoryEvent = new EventEmitter();
+		this.characteristic = this.api.hap.Characteristic;
+		this.service = this.api.hap.Service;
+
 		this.configAccessories = [
 			...(this.config as Config).areas ?? [],
 			...(this.config as Config).zones ?? [],
@@ -72,9 +87,10 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		configAccessory: ConfigAccessory,
 		prefix?: "D" | "Z" | string,
 	): string {
+		const accessoryLength: number = 3;
 		const idNumber: string = Number(configAccessory.number)
 			.toFixed()
-			.padStart(3, "0");
+			.padStart(accessoryLength, "0");
 
 		const idPrefix: "D" | "Z" | string = prefix
 			?? (configAccessory.accessory === "security"
@@ -185,8 +201,9 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			return;
 		}
 
-		const state: number | string = Number(dataString.substring(5));
-		let event: string = dataString.substring(1, 5);
+		const statePosition: number = 5;
+		const state: number | string = Number(dataString.substring(statePosition));
+		let event: string = dataString.substring(1, statePosition);
 		event = event.startsWith("Y") || event.startsWith("N")
 			? event.substring(0, 1)
 			: event;
@@ -195,11 +212,14 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	}
 
 	private sanitiseConfig(): void {
+		const maxPort: number = 65535;
+		const defaultPort: number = 10001;
+
 		this.config.port = typeof this.config.port === "number"
 			&& this.config.port >= 1
-			&& this.config.port <= 65535
+			&& this.config.port <= maxPort
 			? Math.floor(this.config.port)
-			: 10001;
+			: defaultPort;
 
 		this.config.host = typeof this.config.host === "string"
 			? this.config.host.trim()
@@ -214,9 +234,12 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 		this.socketShutdown();
 
+		const reconnectTimeout: number = 10000;
+
+		// eslint-disable-next-line no-restricted-globals
 		setTimeout(
 			this.socketStartUp.bind(this),
-			10000);
+			reconnectTimeout);
 	}
 
 	/**
