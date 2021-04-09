@@ -7,20 +7,35 @@ import { TexecomConnectPlatform } from "../texecom-connect-platform";
  */
 export abstract class TexecomAccessory {
 
+	protected readonly accessory: PlatformAccessory<Record<string, ConfigAccessory>>;
+
+	protected readonly platform: TexecomConnectPlatform;
+
 	protected readonly service: Service;
 
 	protected get characteristic(): Characteristic {
 		return this.service.getCharacteristic(this.serviceCharacteristic);
 	}
 
-	public constructor(
-		protected readonly platform: TexecomConnectPlatform,
-		protected readonly accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
-		protected readonly serviceType: WithUUID<typeof Service>,
-		protected readonly serviceCharacteristic: WithUUID<new() => Characteristic>,
+	protected readonly serviceCharacteristic: WithUUID<new () => Characteristic>;
 
-		protected state: CharacteristicValue,
+	protected readonly serviceType: WithUUID<typeof Service>;
+
+	protected state: CharacteristicValue;
+
+	public constructor(
+		platform: TexecomConnectPlatform,
+		accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
+		serviceType: WithUUID<typeof Service>,
+		serviceCharacteristic: WithUUID<new () => Characteristic>,
+		state: CharacteristicValue,
 	) {
+		this.accessory = accessory;
+		this.platform = platform;
+		this.serviceCharacteristic = serviceCharacteristic;
+		this.serviceType = serviceType;
+		this.state = state;
+
 		this.accessory
 			.getService(this.platform.service.AccessoryInformation)
 			?.setCharacteristic(this.platform.characteristic.Manufacturer, "Texecom")
