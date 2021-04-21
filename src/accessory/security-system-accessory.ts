@@ -1,5 +1,6 @@
 import { Callback, CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigArea } from "../config/config-area";
+import { Messages } from "../interfaces/messages";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 import { TexecomAccessory } from "./texecom-accessory";
 
@@ -26,25 +27,25 @@ export class SecuritySystemAccessory
 
 		// Arming
 		this.platform.accessoryEvent.addListener(
-			this.platform.getAccessoryId(this.accessory.context.config, "X"),
+			this.platform.getAccessoryId(this.accessory.context.config, Messages.armingUpdate),
 			this.listenerArming.bind(this));
 
 		// Armed
 		this.platform.accessoryEvent.addListener(
-			"Y",
+			Messages.systemArmed,
 			this.statusActive.bind(this));
 		this.platform.accessoryEvent.addListener(
-			this.platform.getAccessoryId(this.accessory.context.config, "A"),
+			this.platform.getAccessoryId(this.accessory.context.config, Messages.armUpdate),
 			this.listenerArmed.bind(this));
 
 		// Disarmed
 		this.platform.accessoryEvent.addListener(
-			"N",
+			Messages.systemDisarmed,
 			this.listener.bind(this));
 
 		// Disarmed
 		this.platform.accessoryEvent.addListener(
-			"L",
+			Messages.intruderUpdate,
 			this.listenerTriggered.bind(this));
 	}
 

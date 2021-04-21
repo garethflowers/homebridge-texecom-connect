@@ -18,6 +18,7 @@ import { Config } from "./config/config";
 import { ConfigAccessory } from "./config/config-accessory";
 import { ConfigArea } from "./config/config-area";
 import { ConfigZone } from "./config/config-zone";
+import { Messages } from "./interfaces/messages";
 import { platformName, pluginName } from "./settings";
 
 /**
@@ -25,7 +26,7 @@ import { platformName, pluginName } from "./settings";
  */
 export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
-	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[] ;
+	public readonly accessories: PlatformAccessory<Record<string, ConfigAccessory>>[];
 
 	public readonly accessoryEvent: EventEmitter;
 
@@ -85,17 +86,17 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 	public getAccessoryId(
 		configAccessory: ConfigAccessory,
-		prefix?: "D" | "Z" | string,
+		prefix?: Messages.disarmUpdate | Messages.zoneUpdate | string,
 	): string {
 		const accessoryLength: number = 3;
 		const idNumber: string = Number(configAccessory.number)
 			.toFixed()
 			.padStart(accessoryLength, "0");
 
-		const idPrefix: "D" | "Z" | string = prefix
+		const idPrefix: Messages.disarmUpdate | Messages.zoneUpdate | string = prefix
 			?? (configAccessory.accessory === "security"
-				? "D"
-				: "Z");
+				? Messages.disarmUpdate
+				: Messages.zoneUpdate);
 
 		return idPrefix + idNumber;
 	}
@@ -204,7 +205,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		const statePosition: number = 5;
 		const state: number | string = Number(dataString.substring(statePosition));
 		let event: string = dataString.substring(1, statePosition);
-		event = event.startsWith("Y") || event.startsWith("N")
+		event = event.startsWith(Messages.systemArmed) || event.startsWith(Messages.systemDisarmed)
 			? event.substring(0, 1)
 			: event;
 
