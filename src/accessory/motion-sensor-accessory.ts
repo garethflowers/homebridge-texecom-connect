@@ -18,17 +18,20 @@ export class MotionSensorAccessory
 			accessory,
 			platform.service.MotionSensor,
 			platform.characteristic.MotionDetected,
-			platform.characteristic.ContactSensorState.CONTACT_DETECTED);
+			false);
 	}
 
 	protected listener(
 		value: number,
 	): void {
-		this.characteristic.setValue(
-			value === this.platform.characteristic.ContactSensorState.CONTACT_DETECTED
-				? this.platform.characteristic.ContactSensorState.CONTACT_DETECTED
-				: this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED,
-		);
+		this.characteristic.setValue(Boolean(value));
+
+		this.platform.log.debug(
+			"%s : Motion Detected : %s",
+			this.accessory.context.config.name,
+			this.state === true
+				? "Yes"
+				: "No");
 	}
 
 }

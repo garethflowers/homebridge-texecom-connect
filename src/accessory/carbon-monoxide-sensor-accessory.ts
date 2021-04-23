@@ -29,6 +29,13 @@ export class CarbonMonoxideSensorAccessory
 				? this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
 				: this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL,
 		);
+
+		this.platform.log.debug(
+			"%s : Carbon Monoxide Detected : %s",
+			this.accessory.context.config.name,
+			this.state === this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
+				? "Yes"
+				: "No");
 	}
 
 }
