@@ -60,8 +60,7 @@ export abstract class TexecomAccessory {
 			.onSet(this.setCharacteristic.bind(this));
 	}
 
-	protected getCharacteristic(
-	): CharacteristicValue {
+	protected getCharacteristic(): CharacteristicValue {
 		return this.state;
 	}
 
