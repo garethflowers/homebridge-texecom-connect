@@ -23,6 +23,10 @@
 		"homebridge": ">=1.0.0",
 		"node": ">=10.17.0"
 	},
+	"funding": {
+		"type": "kofi",
+		"url": "https://ko-fi.com/garethflowers"
+	},
 	"keywords": [
 		"homebridge",
 		"homebridge-plugin",

@@ -2,6 +2,7 @@
 
 ## Next
 -	Added debug logs for sensor state changes.
+-	Adds funding information to `package.json`.
 
 ## 0.0.3
 -	Sanitise configuration before use.
