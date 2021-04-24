@@ -1,4 +1,4 @@
-import { Callback, CharacteristicValue, PlatformAccessory } from "homebridge";
+import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigArea } from "../config/config-area";
 import { Messages } from "../interfaces/messages";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
@@ -25,97 +25,93 @@ export class SecuritySystemAccessory
 
 		this.targetState = platform.characteristic.SecuritySystemTargetState.DISARM;
 
-		// Arming
+		// Status - Armed
+		this.platform.accessoryEvent.addListener(
+			Messages.systemArmed,
+			this.statusAlarmed.bind(this));
+
+		// Status - Disarmed
+		this.platform.accessoryEvent.addListener(
+			Messages.systemDisarmed,
+			this.statusDisarmed.bind(this));
+
+		// Event - Arming
 		this.platform.accessoryEvent.addListener(
 			this.platform.getAccessoryId(this.accessory.context.config, Messages.armingUpdate),
 			this.listenerArming.bind(this));
 
-		// Armed
-		this.platform.accessoryEvent.addListener(
-			Messages.systemArmed,
-			this.statusActive.bind(this));
+		// Event - Armed
 		this.platform.accessoryEvent.addListener(
 			this.platform.getAccessoryId(this.accessory.context.config, Messages.armUpdate),
 			this.listenerArmed.bind(this));
 
-		// Disarmed
-		this.platform.accessoryEvent.addListener(
-			Messages.systemDisarmed,
-			this.listener.bind(this));
-
-		// Disarmed
+		// Event - Disarmed
 		this.platform.accessoryEvent.addListener(
 			Messages.intruderUpdate,
 			this.listenerTriggered.bind(this));
+
+		this.service
+			.getCharacteristic(platform.characteristic.SecuritySystemTargetState)
+			.onSet((value: CharacteristicValue) => {
+				this.targetState = value;
+			})
+			.onGet(() => {
+				return this.targetState;
+			});
 	}
 
-	protected getCharacteristic(
-		callback: Callback,
-	): void {
+	protected getCharacteristic(): CharacteristicValue {
 		if (this.platform.connection?.writable === true) {
 			this.platform.connection.write("ASTATUS");
 		}
 
-		super.getCharacteristic(callback);
+		return super.getCharacteristic();
 	}
 
 	protected listener(): void {
-		// A00?,1
-		this.setServiceState(
-			this.platform.characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.characteristic.SecuritySystemTargetState.DISARM,
-		);
+		// D00?,1
+		// N
+		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.DISARMED);
 	}
 
 	protected listenerArmed(
 		value: number,
 	): void {
 		// A00?,0
-		this.setServiceState(
-			value > 1
-				? this.platform.characteristic.SecuritySystemCurrentState.STAY_ARM
-				: this.platform.characteristic.SecuritySystemCurrentState.AWAY_ARM,
-			value > 1
-				? this.platform.characteristic.SecuritySystemTargetState.STAY_ARM
-				: this.platform.characteristic.SecuritySystemTargetState.AWAY_ARM,
-		);
+		this.setServiceState(value > 1
+			? this.platform.characteristic.SecuritySystemCurrentState.STAY_ARM
+			: this.platform.characteristic.SecuritySystemCurrentState.AWAY_ARM);
 	}
 
 	protected listenerArming(): void {
 		// X00?,0
-		this.setServiceState(
-			this.platform.characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.characteristic.SecuritySystemTargetState.AWAY_ARM,
-		);
+		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.DISARMED);
 	}
 
 	protected listenerTriggered(): void {
 		// L00?,0
-		this.setServiceState(
-			this.platform.characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED,
-		);
+		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED);
 	}
 
-	protected statusActive(): void {
-		// A00?,1
-		this.setServiceState(
-			this.platform.characteristic.SecuritySystemCurrentState.DISARMED,
-			this.platform.characteristic.SecuritySystemTargetState.DISARM,
-		);
+	protected statusAlarmed(): void {
+		// Y
+		if (this.state !== this.platform.characteristic.SecuritySystemCurrentState.DISARMED) {
+			return;
+		}
+
+		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.AWAY_ARM);
+	}
+
+	protected statusDisarmed(): void {
+		// N
+		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.DISARMED);
 	}
 
 	private setServiceState(
 		current: CharacteristicValue,
-		target?: CharacteristicValue,
 	): void {
 		this.state = current;
-		this.targetState = target ?? this.targetState;
-
-		this.characteristic.setValue(this.state);
-
-		this.service
-			.getCharacteristic(this.platform.characteristic.SecuritySystemTargetState)
-			.setValue(this.targetState);
+		this.characteristic.setValue(current);
 	}
 
 }
