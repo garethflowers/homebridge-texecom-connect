@@ -1,4 +1,4 @@
-import { Callback, Characteristic, CharacteristicValue, PlatformAccessory, Service, WithUUID } from "homebridge";
+import { Characteristic, CharacteristicValue, PlatformAccessory, Service, WithUUID } from "homebridge";
 import { ConfigAccessory } from "../config/config-accessory";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
@@ -56,22 +56,19 @@ export abstract class TexecomAccessory {
 				this.listener.bind(this));
 
 		this.characteristic
-			.on("get", this.getCharacteristic.bind(this))
-			.on("set", this.setCharacteristic.bind(this));
+			.onGet(this.getCharacteristic.bind(this))
+			.onSet(this.setCharacteristic.bind(this));
 	}
 
 	protected getCharacteristic(
-		callback: Callback,
-	): void {
-		callback(null, this.state);
+	): CharacteristicValue {
+		return this.state;
 	}
 
 	protected setCharacteristic(
 		value: CharacteristicValue,
-		callback: Callback,
 	): void {
 		this.state = value;
-		callback(null);
 	}
 
 	protected abstract listener(
