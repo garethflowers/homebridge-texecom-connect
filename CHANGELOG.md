@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 0.0.4
 -	Added debug logs for sensor state changes.
 -	Adds funding information to `package.json`.
 
