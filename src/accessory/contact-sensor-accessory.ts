@@ -31,7 +31,7 @@ export class ContactSensorAccessory
 		);
 
 		this.platform.log.debug(
-			"Motion Sensor : %s : %s",
+			"%s : Contact Sensor State : %s",
 			this.accessory.context.config.name,
 			this.state === this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
 				? "Open"
