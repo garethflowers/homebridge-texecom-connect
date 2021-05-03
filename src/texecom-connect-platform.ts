@@ -237,8 +237,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 		const reconnectTimeout: number = 10000;
 
-		// eslint-disable-next-line no-restricted-globals
-		setTimeout(
+		global.setTimeout(
 			this.socketStartUp.bind(this),
 			reconnectTimeout);
 	}
