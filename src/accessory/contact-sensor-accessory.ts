@@ -29,6 +29,13 @@ export class ContactSensorAccessory
 				? this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
 				: this.platform.characteristic.ContactSensorState.CONTACT_DETECTED,
 		);
+
+		this.platform.log.debug(
+			"%s : Contact Sensor State : %s",
+			this.accessory.context.config.name,
+			this.state === this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+				? "Open"
+				: "Closed");
 	}
 
 }
