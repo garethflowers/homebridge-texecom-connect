@@ -41,3 +41,6 @@
 Response to `ASTATUS` commands:
 - `"YN`
 - `"NN`
+
+### `LSTATUS`
+Get the current value displayed on the keypad.

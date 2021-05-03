@@ -30,6 +30,13 @@ export class SmokeSensorAccessory
 				? this.platform.characteristic.SmokeDetected.SMOKE_DETECTED
 				: this.platform.characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
 		);
+
+		this.platform.log.debug(
+			"%s : Smoke Detected : %s",
+			this.accessory.context.config.name,
+			value === this.platform.characteristic.ContactSensorState.CONTACT_DETECTED
+				? "Yes"
+				: "No");
 	}
 
 }
