@@ -71,7 +71,7 @@ export abstract class TexecomAccessory {
 	}
 
 	protected abstract listener(
-		value: number,
+		value: CharacteristicValue,
 	): void;
 
 }

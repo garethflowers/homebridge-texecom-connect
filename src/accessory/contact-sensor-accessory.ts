@@ -1,4 +1,4 @@
-import { PlatformAccessory } from "homebridge";
+import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigZone } from "../config/config-zone";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 import { TexecomAccessory } from "./texecom-accessory";
@@ -22,10 +22,10 @@ export class ContactSensorAccessory
 	}
 
 	protected listener(
-		value: number,
+		value: CharacteristicValue,
 	): void {
-		this.characteristic.setValue(
-			value === this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+		this.characteristic.updateValue(
+			value === true
 				? this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
 				: this.platform.characteristic.ContactSensorState.CONTACT_DETECTED,
 		);
@@ -33,7 +33,7 @@ export class ContactSensorAccessory
 		this.platform.log.debug(
 			"%s : Contact Sensor State : %s",
 			this.accessory.context.config.name,
-			this.state === this.platform.characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+			value === true
 				? "Open"
 				: "Closed");
 	}

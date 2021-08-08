@@ -1,4 +1,4 @@
-import { PlatformAccessory } from "homebridge";
+import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigZone } from "../config/config-zone";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 import { TexecomAccessory } from "./texecom-accessory";
@@ -22,10 +22,10 @@ export class CarbonMonoxideSensorAccessory
 	}
 
 	protected listener(
-		value: number,
+		value: CharacteristicValue,
 	): void {
-		this.characteristic.setValue(
-			value === this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
+		this.characteristic.updateValue(
+			value === true
 				? this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
 				: this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL,
 		);
@@ -33,7 +33,7 @@ export class CarbonMonoxideSensorAccessory
 		this.platform.log.debug(
 			"%s : Carbon Monoxide Detected : %s",
 			this.accessory.context.config.name,
-			this.state === this.platform.characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL
+			value === true
 				? "Yes"
 				: "No");
 	}
