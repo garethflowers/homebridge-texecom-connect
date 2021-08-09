@@ -1,4 +1,4 @@
-import { PlatformAccessory } from "homebridge";
+import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigZone } from "../config/config-zone";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 import { TexecomAccessory } from "./texecom-accessory";
@@ -23,10 +23,10 @@ export class SmokeSensorAccessory
 	}
 
 	protected listener(
-		value: number,
+		value: CharacteristicValue,
 	): void {
-		this.characteristic.setValue(
-			value === this.platform.characteristic.SmokeDetected.SMOKE_DETECTED
+		this.characteristic.updateValue(
+			value === true
 				? this.platform.characteristic.SmokeDetected.SMOKE_DETECTED
 				: this.platform.characteristic.SmokeDetected.SMOKE_NOT_DETECTED,
 		);
@@ -34,7 +34,7 @@ export class SmokeSensorAccessory
 		this.platform.log.debug(
 			"%s : Smoke Detected : %s",
 			this.accessory.context.config.name,
-			value === this.platform.characteristic.ContactSensorState.CONTACT_DETECTED
+			value === true
 				? "Yes"
 				: "No");
 	}
