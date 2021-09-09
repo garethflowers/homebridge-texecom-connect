@@ -1,20 +1,20 @@
 import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigArea } from "../config/config-area";
+import { AccessoryContext } from "../interfaces/accessory-context";
 import { Messages } from "../interfaces/messages";
+import { Request } from "../interfaces/requests";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
-import { TexecomAccessory } from "./texecom-accessory";
+import { TexecomAreaAccessory } from "./texecom-area-accessory";
 
 /**
  * Security System Accessory
  */
 export class SecuritySystemAccessory
-	extends TexecomAccessory {
-
-	protected targetState: CharacteristicValue;
+	extends TexecomAreaAccessory {
 
 	public constructor(
 		platform: TexecomConnectPlatform,
-		accessory: PlatformAccessory<Record<string, ConfigArea>>,
+		accessory: PlatformAccessory<AccessoryContext<ConfigArea>>,
 	) {
 		super(
 			platform,
@@ -22,8 +22,6 @@ export class SecuritySystemAccessory
 			platform.service.SecuritySystem,
 			platform.characteristic.SecuritySystemCurrentState,
 			platform.characteristic.SecuritySystemCurrentState.DISARMED);
-
-		this.targetState = platform.characteristic.SecuritySystemTargetState.DISARM;
 
 		// Status - Armed
 		this.platform.accessoryEvent.addListener(
@@ -37,32 +35,23 @@ export class SecuritySystemAccessory
 
 		// Event - Arming
 		this.platform.accessoryEvent.addListener(
-			this.platform.getAccessoryId(this.accessory.context.config, Messages.armingUpdate),
+			this.platform.getAccessoryId(this.config, Messages.armingUpdate),
 			this.listenerArming.bind(this));
 
 		// Event - Armed
 		this.platform.accessoryEvent.addListener(
-			this.platform.getAccessoryId(this.accessory.context.config, Messages.armUpdate),
+			this.platform.getAccessoryId(this.config, Messages.armUpdate),
 			this.listenerArmed.bind(this));
 
-		// Event - Disarmed
+		// Event - Triggered
 		this.platform.accessoryEvent.addListener(
 			Messages.intruderUpdate,
 			this.listenerTriggered.bind(this));
-
-		this.service
-			.getCharacteristic(platform.characteristic.SecuritySystemTargetState)
-			.onSet((value: CharacteristicValue) => {
-				this.targetState = value;
-			})
-			.onGet(() => {
-				return this.targetState;
-			});
 	}
 
 	protected getCharacteristic(): CharacteristicValue {
 		if (this.platform.connection?.writable === true) {
-			this.platform.connection.write("ASTATUS");
+			this.platform.connection.write(Request.alarmStatus);
 		}
 
 		return super.getCharacteristic();
@@ -71,7 +60,7 @@ export class SecuritySystemAccessory
 	protected listener(): void {
 		// D00?,1
 		// N
-		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.DISARMED);
+		this.statusDisarmed();
 	}
 
 	protected listenerArmed(
@@ -85,7 +74,7 @@ export class SecuritySystemAccessory
 
 	protected listenerArming(): void {
 		// X00?,0
-		this.setServiceState(this.platform.characteristic.SecuritySystemCurrentState.DISARMED);
+		this.statusDisarmed();
 	}
 
 	protected listenerTriggered(): void {
@@ -95,7 +84,7 @@ export class SecuritySystemAccessory
 
 	protected statusAlarmed(): void {
 		// Y
-		if (this.state !== this.platform.characteristic.SecuritySystemCurrentState.DISARMED) {
+		if (this.characteristic.value !== this.platform.characteristic.SecuritySystemCurrentState.DISARMED) {
 			return;
 		}
 
@@ -110,7 +99,6 @@ export class SecuritySystemAccessory
 	private setServiceState(
 		current: CharacteristicValue,
 	): void {
-		this.state = current;
 		this.characteristic.setValue(current);
 	}
 

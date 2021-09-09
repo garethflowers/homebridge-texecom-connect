@@ -5,4 +5,6 @@ export interface ConfigArea
 
 	accessory: "security";
 
+	userCode?: string;
+
 }

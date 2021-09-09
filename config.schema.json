@@ -7,6 +7,7 @@
 				"default": "localhost",
 				"format": "hostname",
 				"minLength": 1,
+				"placeholder": "e.g. localhost, 192.168.1.1",
 				"required": true,
 				"title": "IP Address / Hostname",
 				"type": "string"
@@ -14,6 +15,7 @@
 			"port": {
 				"default": 10001,
 				"maximum": 65535,
+				"placeholder": "e.g. 10001",
 				"required": true,
 				"title": "IP Port",
 				"type": "integer"
@@ -25,14 +27,12 @@
 						"accessory": {
 							"oneOf": [
 								{
-									"enum": [
-										"security"
-									],
+									"enum": ["security"],
 									"title": "Alarm"
 								}
 							],
 							"required": true,
-							"title": "Area Type",
+							"title": "Type",
 							"type": "string"
 						},
 						"name": {
@@ -46,15 +46,27 @@
 							"minimum": 1,
 							"placeholder": "e.g. 1, 2, 3",
 							"required": true,
+							"title": "Number",
 							"type": "number"
+						},
+						"userCode": {
+							"default": "",
+							"format": "password",
+							"maxLength": 6,
+							"minLength": 4,
+							"pattern": "^[0-9]{4,6}$",
+							"placeholder": "e.g. 1234",
+							"required": false,
+							"title": "User Code",
+							"type": "string"
 						}
 					},
-					"required": true,
-					"title": "Areas",
-					"type": "object",
-					"uniqueItems": true
+					"type": "object"
 				},
-				"type": "array"
+				"required": true,
+				"title": "Areas",
+				"type": "array",
+				"uniqueItems": true
 			},
 			"zones": {
 				"expandable": true,
@@ -63,27 +75,19 @@
 						"accessory": {
 							"oneOf": [
 								{
-									"enum": [
-										"motion"
-									],
+									"enum": ["motion"],
 									"title": "Motion Sensor"
 								},
 								{
-									"enum": [
-										"contact"
-									],
+									"enum": ["contact"],
 									"title": "Contact Sensor"
 								},
 								{
-									"enum": [
-										"smoke"
-									],
+									"enum": ["smoke"],
 									"title": "Smoke"
 								},
 								{
-									"enum": [
-										"carbon-monoxide"
-									],
+									"enum": ["carbon-monoxide"],
 									"title": "Carbon Monoxide"
 								}
 							],
@@ -102,15 +106,16 @@
 							"minimum": 1,
 							"placeholder": "e.g. 1, 2, 3",
 							"required": true,
+							"title": "Number",
 							"type": "number"
 						}
 					},
-					"required": true,
-					"title": "Zones",
-					"type": "object",
-					"uniqueItems": true
+					"type": "object"
 				},
-				"type": "array"
+				"required": true,
+				"title": "Zones",
+				"type": "array",
+				"uniqueItems": true
 			}
 		},
 		"type": "object"

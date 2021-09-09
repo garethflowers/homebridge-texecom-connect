@@ -1,13 +1,16 @@
 import { Characteristic, CharacteristicValue, PlatformAccessory, Service, WithUUID } from "homebridge";
 import { ConfigAccessory } from "../config/config-accessory";
+import { AccessoryContext } from "../interfaces/accessory-context";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
 /**
  * Texecom Accessory
  */
-export abstract class TexecomAccessory {
+export abstract class TexecomAccessory<T extends ConfigAccessory> {
 
-	protected readonly accessory: PlatformAccessory<Record<string, ConfigAccessory>>;
+	protected readonly accessory: PlatformAccessory<AccessoryContext<T>>;
+
+	protected readonly config: T;
 
 	protected readonly platform: TexecomConnectPlatform;
 
@@ -25,12 +28,13 @@ export abstract class TexecomAccessory {
 
 	public constructor(
 		platform: TexecomConnectPlatform,
-		accessory: PlatformAccessory<Record<string, ConfigAccessory>>,
+		accessory: PlatformAccessory<AccessoryContext<T>>,
 		serviceType: WithUUID<typeof Service>,
 		serviceCharacteristic: WithUUID<new () => Characteristic>,
 		state: CharacteristicValue,
 	) {
 		this.accessory = accessory;
+		this.config = this.accessory.context.config;
 		this.platform = platform;
 		this.serviceCharacteristic = serviceCharacteristic;
 		this.serviceType = serviceType;
@@ -48,11 +52,11 @@ export abstract class TexecomAccessory {
 
 		this.service.setCharacteristic(
 			this.platform.characteristic.Name,
-			this.accessory.context.config.name);
+			this.config.name);
 
 		this.platform.accessoryEvent
 			.addListener(
-				this.platform.getAccessoryId(this.accessory.context.config),
+				this.platform.getAccessoryId(this.config),
 				this.listener.bind(this));
 
 		this.characteristic

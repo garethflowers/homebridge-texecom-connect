@@ -1,17 +1,18 @@
 import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigZone } from "../config/config-zone";
+import { AccessoryContext } from "../interfaces/accessory-context";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
-import { TexecomAccessory } from "./texecom-accessory";
+import { TexecomZoneAccessory } from "./texecom-zone-accessory";
 
 /**
  * Motion Sensor Accessory
  */
 export class MotionSensorAccessory
-	extends TexecomAccessory {
+	extends TexecomZoneAccessory {
 
 	public constructor(
 		platform: TexecomConnectPlatform,
-		accessory: PlatformAccessory<Record<string, ConfigZone>>,
+		accessory: PlatformAccessory<AccessoryContext<ConfigZone>>,
 	) {
 		super(
 			platform,
@@ -28,7 +29,7 @@ export class MotionSensorAccessory
 
 		this.platform.log.debug(
 			"%s : Motion Detected : %s",
-			this.accessory.context.config.name,
+			this.config.name,
 			value === true
 				? "Yes"
 				: "No");
