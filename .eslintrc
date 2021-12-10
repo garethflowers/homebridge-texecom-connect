@@ -197,7 +197,6 @@
 				"argsIgnorePattern": "^_"
 			}
 		],
-		"@typescript-eslint/no-unused-vars-experimental": "error",
 		"@typescript-eslint/no-use-before-define": "error",
 		"@typescript-eslint/no-useless-constructor": "error",
 		"@typescript-eslint/no-var-requires": "error",
