@@ -1,12 +1,32 @@
 {
-	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended"
-	],
 	"ignorePatterns": [
 		"/dist/",
 		"/node_modules/"
+	],
+	"overrides": [
+		{
+			"files": [
+				"*.ts"
+			]
+		},
+		{
+			"files": [
+				"*.spec.js",
+				"*.spec.ts",
+				"*.test.ts"
+			],
+			"rules": {
+				"@typescript-eslint/no-magic-numbers": "off",
+				"no-unused-expressions": "off",
+				"padded-blocks": [
+					"error",
+					{
+						"classes": "always",
+						"switches": "never"
+					}
+				]
+			}
+		}
 	],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
@@ -16,13 +36,20 @@
 		"sourceType": "module"
 	},
 	"plugins": [
-		"@typescript-eslint"
+		"@typescript-eslint",
+		"import",
+		"jsdoc"
 	],
 	"reportUnusedDisableDirectives": true,
 	"root": true,
 	"rules": {
 		"@typescript-eslint/adjacent-overload-signatures": "error",
-		"@typescript-eslint/array-type": "error",
+		"@typescript-eslint/array-type": [
+			"error",
+			{
+				"default": "array"
+			}
+		],
 		"@typescript-eslint/await-thenable": "error",
 		"@typescript-eslint/ban-ts-comment": "error",
 		"@typescript-eslint/ban-types": "error",
@@ -58,11 +85,17 @@
 					"memberTypes": [
 						"signature",
 						"public-static-field",
+						"public-static-get",
+						"public-static-set",
 						"protected-static-field",
+						"protected-static-get",
+						"protected-static-set",
 						"private-static-field",
-						"public-static-method",
-						"protected-static-method",
-						"private-static-method",
+						"private-static-get",
+						"private-static-set",
+						"public-decorated-field",
+						"protected-decorated-field",
+						"private-decorated-field",
 						"public-instance-field",
 						"protected-instance-field",
 						"private-instance-field",
@@ -75,8 +108,52 @@
 						"static-field",
 						"instance-field",
 						"abstract-field",
+						"decorated-field",
 						"field",
+						"public-decorated-get",
+						"protected-decorated-get",
+						"private-decorated-get",
+						"public-instance-get",
+						"protected-instance-get",
+						"private-instance-get",
+						"public-abstract-get",
+						"protected-abstract-get",
+						"private-abstract-get",
+						"public-get",
+						"protected-get",
+						"private-get",
+						"static-get",
+						"instance-get",
+						"abstract-get",
+						"decorated-get",
+						"get",
+						"public-decorated-set",
+						"protected-decorated-set",
+						"private-decorated-set",
+						"public-instance-set",
+						"protected-instance-set",
+						"private-instance-set",
+						"public-abstract-set",
+						"protected-abstract-set",
+						"private-abstract-set",
+						"public-set",
+						"protected-set",
+						"private-set",
+						"static-set",
+						"instance-set",
+						"abstract-set",
+						"decorated-set",
+						"set",
+						"public-static-method",
+						"protected-static-method",
+						"private-static-method",
+						"public-constructor",
+						"protected-constructor",
+						"private-constructor",
 						"constructor",
+						"public-decorated-method",
+						"protected-decorated-method",
+						"private-decorated-method",
 						"public-instance-method",
 						"protected-instance-method",
 						"private-instance-method",
@@ -89,6 +166,7 @@
 						"static-method",
 						"instance-method",
 						"abstract-method",
+						"decorated-method",
 						"method"
 					],
 					"order": "alphabetically"
@@ -154,7 +232,7 @@
 		"@typescript-eslint/no-loop-func": "error",
 		"@typescript-eslint/no-loss-of-precision": "error",
 		"@typescript-eslint/no-magic-numbers": [
-			"warn",
+			"error",
 			{
 				"enforceConst": true,
 				"ignore": [
@@ -162,7 +240,9 @@
 					0,
 					1
 				],
-				"ignoreEnums": true
+				"ignoreEnums": true,
+				"ignoreNumericLiteralTypes": true,
+				"ignoreReadonlyClassProperties": true
 			}
 		],
 		"@typescript-eslint/no-misused-new": "error",
@@ -170,13 +250,32 @@
 		"@typescript-eslint/no-namespace": "error",
 		"@typescript-eslint/no-non-null-asserted-optional-chain": "error",
 		"@typescript-eslint/no-non-null-assertion": "error",
-		"@typescript-eslint/no-parameter-properties": "warn",
+		"@typescript-eslint/no-parameter-properties": [
+			"error",
+			{
+				"allows": [
+					"private readonly",
+					"private",
+					"protected readonly",
+					"protected",
+					"public readonly",
+					"public"
+				]
+			}
+		],
 		"@typescript-eslint/no-redeclare": "error",
 		"@typescript-eslint/no-require-imports": "error",
 		"@typescript-eslint/no-shadow": "error",
 		"@typescript-eslint/no-this-alias": "error",
 		"@typescript-eslint/no-throw-literal": "error",
-		"@typescript-eslint/no-type-alias": "error",
+		"@typescript-eslint/no-type-alias": [
+			"error",
+			{
+				"allowAliases": "in-unions-and-intersections",
+				"allowGenerics": "always",
+				"allowLiterals": "in-unions-and-intersections"
+			}
+		],
 		"@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
 		"@typescript-eslint/no-unnecessary-condition": "error",
 		"@typescript-eslint/no-unnecessary-qualifier": "error",
@@ -243,16 +342,30 @@
 		"@typescript-eslint/typedef": "error",
 		"@typescript-eslint/unbound-method": "error",
 		"@typescript-eslint/unified-signatures": "error",
+		"arrow-body-style": [
+			"error",
+			"as-needed"
+		],
+		"arrow-parens": [
+			"error",
+			"always"
+		],
 		"brace-style": [
 			"error",
 			"1tbs"
 		],
 		"camelcase": "off",
+		"capitalized-comments": [
+			"error",
+			"always"
+		],
+		"class-methods-use-this": "off",
 		"comma-dangle": [
 			"error",
 			"always-multiline"
 		],
 		"comma-spacing": "off",
+		"complexity": "error",
 		"constructor-super": "error",
 		"curly": [
 			"error",
@@ -265,10 +378,42 @@
 			"error",
 			"always"
 		],
-		"eqeqeq": "error",
+		"eqeqeq": [
+			"error",
+			"always"
+		],
 		"func-call-spacing": "off",
+		"import/no-default-export": "error",
+		"import/no-extraneous-dependencies": [
+			"error",
+			{
+				"optionalDependencies": false
+			}
+		],
+		"import/no-internal-modules": "error",
+		"import/no-unassigned-import": "error",
+		"import/order": [
+			"error",
+			{
+				"alphabetize": {
+					"order": "asc"
+				},
+				"newlines-between": "always"
+			}
+		],
 		"indent": "off",
 		"init-declarations": "off",
+		"jsdoc/check-alignment": "error",
+		"jsdoc/check-syntax": "error",
+		"jsdoc/check-tag-names": [
+			"error",
+			{
+				"definedTags": [
+					"openapi"
+				]
+			}
+		],
+		"jsdoc/empty-tags": "error",
 		"keyword-spacing": "off",
 		"linebreak-style": [
 			"error",
@@ -288,6 +433,7 @@
 			1000
 		],
 		"new-parens": "error",
+		"newline-per-chained-call": "off",
 		"no-array-constructor": "off",
 		"no-caller": "error",
 		"no-console": "error",
@@ -301,7 +447,8 @@
 		"no-extra-parens": "off",
 		"no-extra-semi": "off",
 		"no-fallthrough": "error",
-		"no-invalid-this": "off",
+		"no-invalid-this": "error",
+		"no-irregular-whitespace": "error",
 		"no-loop-func": "off",
 		"no-loss-of-precision": "off",
 		"no-magic-numbers": "off",
@@ -315,9 +462,15 @@
 		],
 		"no-new-func": "error",
 		"no-new-wrappers": "error",
-		"no-redeclare": "off",
+		"no-plusplus": [
+			"error",
+			{
+				"allowForLoopAfterthoughts": true
+			}
+		],
+		"no-redeclare": "error",
 		"no-restricted-globals": [
-			"warn",
+			"error",
 			"clearInterval",
 			"clearTimeout",
 			"fdescribe",
@@ -325,7 +478,12 @@
 			"setInterval",
 			"setTimeout"
 		],
+		"no-restricted-syntax": [
+			"error",
+			"ForInStatement"
+		],
 		"no-return-await": "error",
+		"no-sequences": "error",
 		"no-shadow": "off",
 		"no-sparse-arrays": "error",
 		"no-template-curly-in-string": "error",
@@ -337,8 +495,14 @@
 		"no-unused-labels": "error",
 		"no-unused-vars": "off",
 		"no-use-before-define": "off",
-		"no-useless-constructor": "off",
+		"no-useless-constructor": "error",
 		"no-var": "error",
+		"no-void": [
+			"error",
+			{
+				"allowAsStatement": true
+			}
+		],
 		"object-shorthand": "error",
 		"padded-blocks": [
 			"error",
@@ -380,12 +544,16 @@
 		"sort-keys": "error",
 		"sort-vars": "error",
 		"space-before-function-paren": "off",
-		"space-in-parens": "error",
+		"space-in-parens": [
+			"error",
+			"never"
+		],
 		"template-curly-spacing": "error",
 		"unicode-bom": [
 			"error",
 			"never"
 		],
-		"use-isnan": "error"
+		"use-isnan": "error",
+		"yoda": "error"
 	}
 }

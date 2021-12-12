@@ -1,7 +1,9 @@
 import { CharacteristicValue, PlatformAccessory } from "homebridge";
+
 import { ConfigZone } from "../config/config-zone";
 import { AccessoryContext } from "../interfaces/accessory-context";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
+
 import { TexecomZoneAccessory } from "./texecom-zone-accessory";
 
 /**

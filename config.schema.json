@@ -1,4 +1,5 @@
 {
+	"footerDisplay": "This plugin requires a Texecom SmartCom installation that uses the Crestron protocol.",
 	"pluginAlias": "TexecomConnect",
 	"pluginType": "platform",
 	"schema": {
