@@ -1,4 +1,5 @@
 import { Characteristic, CharacteristicValue, PlatformAccessory, Service, WithUUID } from "homebridge";
+
 import { ConfigAccessory } from "../config/config-accessory";
 import { AccessoryContext } from "../interfaces/accessory-context";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
@@ -16,15 +17,15 @@ export abstract class TexecomAccessory<T extends ConfigAccessory> {
 
 	protected readonly service: Service;
 
-	protected get characteristic(): Characteristic {
-		return this.service.getCharacteristic(this.serviceCharacteristic);
-	}
-
 	protected readonly serviceCharacteristic: WithUUID<new () => Characteristic>;
 
 	protected readonly serviceType: WithUUID<typeof Service>;
 
 	protected state: CharacteristicValue;
+
+	protected get characteristic(): Characteristic {
+		return this.service.getCharacteristic(this.serviceCharacteristic);
+	}
 
 	public constructor(
 		platform: TexecomConnectPlatform,

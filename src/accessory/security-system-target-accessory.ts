@@ -1,9 +1,12 @@
-import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { promisify } from "util";
+
+import { CharacteristicValue, PlatformAccessory } from "homebridge";
+
 import { ConfigArea } from "../config/config-area";
 import { AccessoryContext } from "../interfaces/accessory-context";
 import { Request } from "../interfaces/requests";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
+
 import { TexecomAreaAccessory } from "./texecom-area-accessory";
 
 /**

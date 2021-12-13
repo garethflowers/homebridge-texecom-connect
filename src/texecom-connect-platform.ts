@@ -1,4 +1,6 @@
 import { EventEmitter } from "events";
+import * as net from "net";
+
 import {
 	API,
 	Characteristic,
@@ -8,7 +10,7 @@ import {
 	PlatformConfig,
 	Service,
 } from "homebridge";
-import * as net from "net";
+
 import { CarbonMonoxideSensorAccessory } from "./accessory/carbon-monoxide-sensor-accessory";
 import { ContactSensorAccessory } from "./accessory/contact-sensor-accessory";
 import { MotionSensorAccessory } from "./accessory/motion-sensor-accessory";
@@ -111,13 +113,11 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 */
 	private deprecateAccessories(): void {
 		this.accessories
-			.filter((accessory) => {
-				return !this.configAccessories.some((configAccessory: ConfigAccessory) =>
-					configAccessory.accessory === accessory.context.config.accessory
+			.filter((accessory) => !this.configAccessories.some((configAccessory: ConfigAccessory) =>
+				configAccessory.accessory === accessory.context.config.accessory
 					&& configAccessory.name === accessory.context.config.name
 					&& configAccessory.number === accessory.context.config.number
-					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory)));
-			})
+					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory))))
 			.forEach((accessory) => {
 				this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory]);
 			});

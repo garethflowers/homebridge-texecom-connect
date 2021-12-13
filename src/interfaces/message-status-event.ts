@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-type-alias */
-
 import { Messages } from "./messages";
 
 export type MessageStatusEvent =
