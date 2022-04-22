@@ -48,6 +48,7 @@
 		"lint": "eslint .",
 		"prebuild": "rimraf ./dist",
 		"prepublishOnly": "npm run lint && npm run build",
+		"start": "npm run watch",
 		"test": "npm run lint",
 		"watch": "npm run build && npm link && nodemon"
 	},
