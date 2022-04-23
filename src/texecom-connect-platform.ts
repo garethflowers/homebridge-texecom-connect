@@ -222,7 +222,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	}
 
 	private parseData(
-		data: string,
+		data: string | Buffer,
 	): void {
 		const dataString: string | undefined = this.sanitiseEventData(data);
 
@@ -268,9 +268,9 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	}
 
 	private sanitiseEventData(
-		data: unknown,
+		data: string | Buffer | unknown,
 	): string | undefined {
-		return typeof data === "string"
+		return typeof data === "string" || Buffer.isBuffer(data)
 			? data
 				.toString()
 				.trim()
@@ -311,6 +311,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	private socketStartUp(): void {
 		this.connection = net
 			.createConnection(this.config.port, this.config.host)
+			.setEncoding("utf8")
 			.on("connect", () => {
 				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
 			})
