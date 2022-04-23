@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+-	Handle socket connections that use buffers.
+-	Standardised sensor debug log format.
+
 ## 0.0.4
 -	Added debug logs for sensor state changes.
 -	Adds funding information to `package.json`.
