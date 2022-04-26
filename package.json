@@ -10,7 +10,7 @@
 	"devDependencies": {
 		"@types/node": "17.0.27",
 		"@typescript-eslint/eslint-plugin": "5.20.0",
-		"@typescript-eslint/parser": "5.20.0",
+		"@typescript-eslint/parser": "5.21.0",
 		"eslint": "8.14.0",
 		"eslint-plugin-import": "2.26.0",
 		"eslint-plugin-jsdoc": "39.0.0",
