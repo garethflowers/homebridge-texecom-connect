@@ -224,16 +224,16 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	private parseData(
 		data: string | Buffer,
 	): void {
-		const dataString: string | undefined = this.sanitiseEventData(data);
+		const events: string[] | undefined = this.sanitiseEventData(data);
 
-		if (dataString === undefined) {
+		if (events === undefined
+			|| events.length === 0) {
 			return;
 		}
 
-		this.log.debug("Socket Data:", dataString);
-		this.lastSocketResponse = Date.now();
+		if (!events[0].startsWith("\"")) {
+			this.log.debug("Socket Data:", events[0]);
 
-		if (!dataString.startsWith("\"")) {
 			if (this.connection?.destroyed === false) {
 				this.connection.destroy(new RangeError("Invalid data from SmartCOM"));
 			}
@@ -241,7 +241,12 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			return;
 		}
 
-		this.handleMessage(dataString.substring(1));
+		events.forEach((event: string) => {
+			this.log.debug("Socket Data:", event);
+			this.lastSocketResponse = Date.now();
+
+			this.handleMessage(event.substring(1));
+		});
 	}
 
 	private sanitiseConfig(): void {
@@ -269,13 +274,14 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 	private sanitiseEventData(
 		data: string | Buffer | unknown,
-	): string | undefined {
+	): string[] | undefined {
 		return typeof data === "string" || Buffer.isBuffer(data)
 			? data
 				.toString()
 				.trim()
 				.split("\n")
-				.pop()
+				.map((value: string) => value.trim())
+				.filter((value: string) => value.length > 0)
 			: undefined;
 	}
 
