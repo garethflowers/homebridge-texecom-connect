@@ -1,11 +1,14 @@
 name: Build and Lint
 on:
   pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,7 +23,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Lint the project
         run: npm run lint
       - name: Build the project
