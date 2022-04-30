@@ -1,16 +1,12 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    assignees:
-      - "garethflowers"
     directory: "/"
     reviewers:
       - "garethflowers"
     schedule:
       interval: "daily"
   - package-ecosystem: "npm"
-    assignees:
-      - "garethflowers"
     commit-message:
       include: "scope"
       prefix: "chore"
