@@ -31,7 +31,7 @@ export class SecuritySystemTargetAccessory
 		return;
 	}
 
-	protected async setCharacteristic(
+	protected override async setCharacteristic(
 		value: CharacteristicValue,
 	): Promise<void> {
 		if (this.config.userCode === undefined) {

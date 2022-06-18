@@ -227,7 +227,8 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		const events: string[] | undefined = this.sanitiseEventData(data);
 
 		if (events === undefined
-			|| events.length === 0) {
+			|| events.length === 0
+			|| events[0] === undefined) {
 			return;
 		}
 
