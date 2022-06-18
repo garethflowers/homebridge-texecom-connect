@@ -51,7 +51,7 @@ export class SecuritySystemAccessory
 			this.listenerTriggered.bind(this));
 	}
 
-	protected getCharacteristic(): CharacteristicValue {
+	protected override getCharacteristic(): CharacteristicValue {
 		if (this.platform.connection?.writable === true) {
 			this.platform.connection.write(Request.alarmStatus);
 		}

@@ -1,22 +1,25 @@
 {
+	"compileOnSave": true,
 	"compilerOptions": {
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
 		"declaration": true,
-		"declarationMap": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"lib": [],
 		"module": "commonjs",
-		"noImplicitAny": true,
-		"outDir": "./dist",
-		"rootDir": "./src",
+		"newLine": "lf",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"outDir": "dist",
+		"rootDir": ".",
 		"sourceMap": true,
 		"strict": true,
 		"target": "es2018"
-	},
-	"exclude": [
-		"**/*.spec.ts"
-	],
-	"include": [
-		"src/"
-	]
+	}
 }
