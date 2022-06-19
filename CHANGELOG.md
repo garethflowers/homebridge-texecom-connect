@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.7
+
+-   Dependency updates.
+
 ## 0.0.6
 
 -   Handle multiple simultaneous events sent from SmartCOM.
