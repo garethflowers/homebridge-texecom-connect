@@ -53,5 +53,5 @@
 		"test": "npm run lint",
 		"watch": "npm run build && npm link && nodemon"
 	},
-	"version": "0.0.6"
+	"version": "0.0.7"
 }
