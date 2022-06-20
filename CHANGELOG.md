@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.8
+
+-  Fix incorrect build output directory.
+
 ## 0.0.7
 
 -   Dependency updates.
