@@ -1,3 +1,5 @@
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+
 # Homebridge Texecom Connect Plugin
 
 A [Homebridge](https://homebridge.io) plugins that exposes a [Texecom Connect](https://www.texe.com/uk/products/series/automation/texecom-connect/) enabled Alarm System to HomeKit.
