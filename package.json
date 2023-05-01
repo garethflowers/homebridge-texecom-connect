@@ -9,7 +9,7 @@
 	"description": "A Homebridge plugin to integrate with Texecom Connect SmartCom.",
 	"devDependencies": {
 		"@garethflowers/eslint-config-ts": "0.1.0",
-		"@types/node": "18.16.1",
+		"@types/node": "18.16.2",
 		"homebridge": "1.5.1",
 		"nodemon": "2.0.22",
 		"rimraf": "5.0.0",
