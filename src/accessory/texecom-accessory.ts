@@ -49,7 +49,7 @@ export abstract class TexecomAccessory<T extends ConfigAccessory> {
 
 		this.service =
 			this.accessory.getService(this.serviceType)
-			?? this.accessory.addService(this.serviceType);
+			?? this.accessory.addService(this.serviceType as unknown as Service); // Type hack
 
 		this.service.setCharacteristic(
 			this.platform.characteristic.Name,
