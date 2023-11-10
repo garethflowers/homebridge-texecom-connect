@@ -10,7 +10,7 @@
 	"devDependencies": {
 		"@garethflowers/eslint-config-ts": "0.1.0",
 		"@types/node": "20.9.0",
-		"homebridge": "1.6.1",
+		"homebridge": "1.7.0",
 		"nodemon": "3.0.1",
 		"rimraf": "5.0.5",
 		"ts-node": "10.9.1",
