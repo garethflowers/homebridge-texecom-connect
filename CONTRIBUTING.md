@@ -4,8 +4,9 @@
 
 ### Zone Events
 
-- `"Z0011` Zone Active
-- `"Z0010` Zone Inactive
+-   `"Z0011` Zone Active
+-   `"Z0010` Zone Inactive
+
 ```
  +------------- Command
  | +----------- Event Type (Zone)
@@ -17,11 +18,13 @@
 ```
 
 ### Area Events
-- `"X0010` Area Activating (Arming)
-- `"A0010` Area Active (Armed)
-- `"D0010` Area Inactive (Disarmed)
-- `"L0010` Area Triggered (Alarmed)
-- `"E0010` Area Entry Triggered
+
+-   `"X0010` Area Activating (Arming)
+-   `"A0010` Area Active (Armed)
+-   `"D0010` Area Inactive (Disarmed)
+-   `"L0010` Area Triggered (Alarmed)
+-   `"E0010` Area Entry Triggered
+
 ```
  +------------- Command
  | +----------- Event Type
@@ -33,14 +36,18 @@
 ```
 
 ### Other Events
-- `"U0010` User Panel Triggered
+
+-   `"U0010` User Panel Triggered
 
 ## Commands
 
 ### `ASTATUS`
+
 Response to `ASTATUS` commands:
-- `"YN`
-- `"NN`
+
+-   `"YN`
+-   `"NN`
 
 ### `LSTATUS`
+
 Get the current value displayed on the keypad.
