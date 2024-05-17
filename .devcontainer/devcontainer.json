@@ -1,0 +1,13 @@
+{
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	},
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+	"name": "homebridge-texecom-connect",
+	"remoteUser": "root"
+}
