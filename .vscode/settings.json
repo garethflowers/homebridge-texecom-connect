@@ -4,10 +4,11 @@
 		"placeholder"
 	],
 	"editor.codeActionsOnSave": {
-		"source.fixAll": true
+		"source.fixAll": "explicit",
+		"source.organizeImports": "explicit"
 	},
 	"editor.rulers": [
-		140
+		80
 	],
 	"files.eol": "\n",
 	"files.exclude": {
