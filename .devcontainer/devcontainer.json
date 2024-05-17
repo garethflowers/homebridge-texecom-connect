@@ -3,6 +3,7 @@
 		"vscode": {
 			"extensions": [
 				"dbaeumer.vscode-eslint",
+				"editorConfig.editorconfig",
 				"streetsidesoftware.code-spell-checker"
 			]
 		}
