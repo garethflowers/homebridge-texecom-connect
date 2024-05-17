@@ -41,11 +41,14 @@ export abstract class TexecomAccessory<T extends ConfigAccessory> {
 		this.serviceType = serviceType;
 		this.state = state;
 
-		this.accessory
-			.getService(this.platform.service.AccessoryInformation)
-			?.setCharacteristic(this.platform.characteristic.Manufacturer, "Texecom")
-			?.setCharacteristic(this.platform.characteristic.Model, "Texecom Accessory")
-			?.setCharacteristic(this.platform.characteristic.SerialNumber, "Unknown");
+		const serviceInformation: Service | undefined = this.accessory
+			.getService(this.platform.service.AccessoryInformation);
+
+		if (serviceInformation !== undefined) {
+			serviceInformation.setCharacteristic(this.platform.characteristic.Manufacturer, "Texecom")
+				.setCharacteristic(this.platform.characteristic.Model, "Texecom Accessory")
+				.setCharacteristic(this.platform.characteristic.SerialNumber, "Unknown");
+		}
 
 		this.service =
 			this.accessory.getService(this.serviceType)
