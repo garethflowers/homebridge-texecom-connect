@@ -5,7 +5,7 @@ updates:
     reviewers:
       - "garethflowers"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "npm"
     commit-message:
       include: "scope"
@@ -14,4 +14,13 @@ updates:
     reviewers:
       - "garethflowers"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+  - package-ecosystem: "devcontainers"
+    commit-message:
+      include: "scope"
+      prefix: "chore"
+    directory: "/"
+    reviewers:
+      - "garethflowers"
+    schedule:
+      interval: "weekly"
