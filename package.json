@@ -27,8 +27,8 @@
 		]
 	},
 	"funding": {
-		"type": "kofi",
-		"url": "https://ko-fi.com/garethflowers"
+		"type": "paypal",
+		"url": "https://paypal.me/garethflowers"
 	},
 	"keywords": [
 		"homebridge",
