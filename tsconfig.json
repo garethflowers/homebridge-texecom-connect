@@ -18,8 +18,9 @@
 		"noUnusedParameters": true,
 		"outDir": "dist",
 		"rootDir": "src",
+		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"target": "es2018"
+		"target": "es2022"
 	}
 }
