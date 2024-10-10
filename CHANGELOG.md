@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.11
+
+-   Update plugin to be ready for Homebridge v2.
+-   Dependency updates.
+
 ## 0.0.10
 
 -   Dependency updates.
@@ -10,7 +15,7 @@
 
 ## 0.0.8
 
--  Fix incorrect build output directory.
+-   Fix incorrect build output directory.
 
 ## 0.0.7
 
