@@ -10,7 +10,7 @@
 			]
 		}
 	},
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bullseye",
 	"name": "homebridge-texecom-connect",
 	"remoteUser": "root"
 }
