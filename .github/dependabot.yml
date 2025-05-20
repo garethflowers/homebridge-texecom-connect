@@ -2,8 +2,6 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers:
-      - "garethflowers"
     schedule:
       interval: "weekly"
   - package-ecosystem: "npm"
@@ -11,8 +9,6 @@ updates:
       include: "scope"
       prefix: "chore"
     directory: "/"
-    reviewers:
-      - "garethflowers"
     schedule:
       interval: "weekly"
   - package-ecosystem: "devcontainers"
@@ -20,7 +16,5 @@ updates:
       include: "scope"
       prefix: "chore"
     directory: "/"
-    reviewers:
-      - "garethflowers"
     schedule:
       interval: "weekly"
