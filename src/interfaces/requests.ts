@@ -1,4 +1,4 @@
-export enum Request {
+export enum Requests {
 	alarmStatus = "ASTATUS",
 	key = "KEY",
 	no = "KEYD",

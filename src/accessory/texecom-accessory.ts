@@ -59,7 +59,7 @@ export abstract class TexecomAccessory<T extends ConfigAccessory> {
 			this.config.name);
 
 		this.platform.accessoryEvent
-			.addListener(
+			.on(
 				this.platform.getAccessoryId(this.config),
 				this.listener.bind(this));
 

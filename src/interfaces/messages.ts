@@ -4,6 +4,7 @@ export enum Messages {
 	disarmUpdate = "D",
 	entryUpdate = "E",
 	intruderUpdate = "L",
+	successful = "OK",
 	systemArmed = "Y",
 	systemDisarmed = "N",
 	userPinLogin = "U",

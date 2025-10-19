@@ -1,10 +1,8 @@
-import { promisify } from "util";
-
 import { CharacteristicValue, PlatformAccessory } from "homebridge";
 
 import { ConfigArea } from "../config/config-area";
 import { AccessoryContext } from "../interfaces/accessory-context";
-import { Request } from "../interfaces/requests";
+import { Messages } from "../interfaces/messages";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
 import { TexecomAreaAccessory } from "./texecom-area-accessory";
@@ -14,6 +12,8 @@ import { TexecomAreaAccessory } from "./texecom-area-accessory";
  */
 export class SecuritySystemTargetAccessory
 	extends TexecomAreaAccessory {
+
+	private readonly retryDelay: number;
 
 	public constructor(
 		platform: TexecomConnectPlatform,
@@ -25,6 +25,13 @@ export class SecuritySystemTargetAccessory
 			platform.service.SecuritySystem,
 			platform.characteristic.SecuritySystemTargetState,
 			platform.characteristic.SecuritySystemTargetState.DISARM);
+
+		this.retryDelay = 2000;
+
+		// TODO
+		/* global.setTimeout(() =>{
+			void this.setCharacteristic(this.platform.characteristic.SecuritySystemTargetState.STAY_ARM);
+		}, 60000); */
 	}
 
 	protected listener(): void {
@@ -34,10 +41,6 @@ export class SecuritySystemTargetAccessory
 	protected override async setCharacteristic(
 		value: CharacteristicValue,
 	): Promise<void> {
-		if (this.config.userCode === undefined) {
-			return;
-		}
-
 		super.setCharacteristic(value);
 
 		let state: string = "Off";
@@ -55,30 +58,82 @@ export class SecuritySystemTargetAccessory
 			default:
 		}
 
+		await this.applyTargetState(state);
+	}
+
+	private async applyTargetState(state: string): Promise<void> {
 		this.platform.log.info(
-			"%s : Security System Mode Changed : %s",
+			"%s : Security System Mode Change Requested : %s",
 			this.config.name,
 			state);
 
-		await this.processKeys(this.config.userCode);
-	}
+		if (this.config.userCode === undefined) {
+			this.platform.log.error(
+				"%s : Security System Mode Change Failed : %s",
+				this.config.name,
+				"Invalid User Code");
 
-	private async processKeys(
-		keys: string,
-	): Promise<void> {
-		if (this.platform.connection?.writable !== true) {
 			return;
 		}
 
-		const keyDelay: number = 500;
-
-		for (const key of keys) {
-			this.platform.connection.write(`${Request.key}${key}`);
-
-			await promisify(global.setTimeout)(keyDelay);
+		try {
+			await this.processCommand(`W${this.config.userCode}`, 2);
+		} catch (error) {
+			this.platform.log.error(
+				"%s : Security System Mode Change Failed : %s",
+				this.config.name,
+				error);
 		}
 
-		this.platform.connection.write(Request.panelStatus);
+		this.platform.log.info(
+			"%s : Security System Mode Change Completed : %s",
+			this.config.name,
+			state);
+	}
+
+	private async processCommand(command: string, retryCount: number = 1): Promise<boolean> {
+		return new Promise((resolve: (value: boolean) => void, reject: (reason: Error) => void) => {
+			const handleData = (data: string | Buffer): void => {
+				if (data.toString().trim() !== Messages.successful) {
+					return;
+				}
+
+				this.platform.connection?.removeListener("data", handleData);
+				resolve(true);
+			};
+
+			this.platform.connection?.on("data", handleData);
+console.warn(command);
+
+			if (this.platform.connection?.writable === true) {
+				this.platform.connection.write(`\\${command}/`, (error?: Error) => {
+					if (error !== null && error !== undefined) {
+						this.platform.log.error("%s : Command failed : %s", this.config.name, error);
+						reject(error);
+
+						return;
+					}
+
+					this.platform.log.debug("%s : Command sent: %s", this.config.name, command);
+				});
+			}
+
+			global.setTimeout(() => {
+				this.platform.connection?.removeListener("data", handleData);
+
+				if (retryCount === 0) {
+					reject(new Error("Timeout sending command"));
+
+					return;
+				}
+
+				this.platform.log.debug("%s : Command retry: %s", this.config.name, retryCount);
+
+				this.processCommand(command, retryCount - 1)
+					.then(resolve)
+					.catch(reject);
+			}, this.retryDelay);
+		});
 	}
 
 }

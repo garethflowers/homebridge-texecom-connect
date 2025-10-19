@@ -1,6 +1,6 @@
 import { API } from "homebridge";
 
-import { platformName } from "./settings";
+import { platformName } from "./settings/platform-name";
 import { TexecomConnectPlatform } from "./texecom-connect-platform";
 
 /**

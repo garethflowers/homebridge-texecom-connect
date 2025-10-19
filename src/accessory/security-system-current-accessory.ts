@@ -3,7 +3,7 @@ import { CharacteristicValue, PlatformAccessory } from "homebridge";
 import { ConfigArea } from "../config/config-area";
 import { AccessoryContext } from "../interfaces/accessory-context";
 import { Messages } from "../interfaces/messages";
-import { Request } from "../interfaces/requests";
+import { Requests } from "../interfaces/requests";
 import { TexecomConnectPlatform } from "../texecom-connect-platform";
 
 import { TexecomAreaAccessory } from "./texecom-area-accessory";
@@ -26,34 +26,34 @@ export class SecuritySystemAccessory
 			platform.characteristic.SecuritySystemCurrentState.DISARMED);
 
 		// Status - Armed
-		this.platform.accessoryEvent.addListener(
+		this.platform.accessoryEvent.on(
 			Messages.systemArmed,
 			this.statusAlarmed.bind(this));
 
 		// Status - Disarmed
-		this.platform.accessoryEvent.addListener(
+		this.platform.accessoryEvent.on(
 			Messages.systemDisarmed,
 			this.statusDisarmed.bind(this));
 
 		// Event - Arming
-		this.platform.accessoryEvent.addListener(
+		this.platform.accessoryEvent.on(
 			this.platform.getAccessoryId(this.config, Messages.armingUpdate),
 			this.listenerArming.bind(this));
 
 		// Event - Armed
-		this.platform.accessoryEvent.addListener(
+		this.platform.accessoryEvent.on(
 			this.platform.getAccessoryId(this.config, Messages.armUpdate),
 			this.listenerArmed.bind(this));
 
 		// Event - Triggered
-		this.platform.accessoryEvent.addListener(
+		this.platform.accessoryEvent.on(
 			Messages.intruderUpdate,
 			this.listenerTriggered.bind(this));
 	}
 
 	protected override getCharacteristic(): CharacteristicValue {
 		if (this.platform.connection?.writable === true) {
-			this.platform.connection.write(Request.alarmStatus);
+			this.platform.connection.write(Requests.alarmStatus);
 		}
 
 		return super.getCharacteristic();
@@ -102,6 +102,29 @@ export class SecuritySystemAccessory
 		current: CharacteristicValue,
 	): void {
 		this.characteristic.setValue(current);
+
+		let state: string;
+
+		switch (current) {
+			case this.platform.characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED:
+				state = "ALARM TRIGGERED!";
+				break;
+			case this.platform.characteristic.SecuritySystemCurrentState.AWAY_ARM:
+				state = "Fully Armed";
+				break;
+			case this.platform.characteristic.SecuritySystemCurrentState.STAY_ARM:
+				state = "Partially Armed";
+				break;
+			default:
+				state = "Disarmed";
+				break;
+		}
+
+		this.platform.log.debug(
+			"%s : Security State : %s",
+			this.config.name,
+			state,
+		);
 	}
 
 }

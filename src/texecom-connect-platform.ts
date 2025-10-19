@@ -26,7 +26,9 @@ import { Message } from "./interfaces/message";
 import { MessageAlarmEvent } from "./interfaces/message-alarm-event";
 import { MessageStatusEvent } from "./interfaces/message-status-event";
 import { Messages } from "./interfaces/messages";
-import { platformName, pluginName } from "./settings";
+import { Requests } from "./interfaces/requests";
+import { platformName } from "./settings/platform-name";
+import { pluginName } from "./settings/platform-plugin";
 
 /**
  * Texecom Connect Platform.
@@ -86,9 +88,9 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 * Configure Accessory after Platform Init
 	 */
 	public configureAccessory(
-		accessory: PlatformAccessory<AccessoryContext>,
+		accessory: PlatformAccessory,
 	): void {
-		this.accessories.push(accessory);
+		this.accessories.push(accessory as PlatformAccessory<AccessoryContext>);
 	}
 
 	public getAccessoryId(
@@ -115,9 +117,9 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		this.accessories
 			.filter((accessory) => !this.configAccessories.some((configAccessory: ConfigAccessory) =>
 				configAccessory.accessory === accessory.context.config.accessory
-					&& configAccessory.name === accessory.context.config.name
-					&& configAccessory.number === accessory.context.config.number
-					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory))))
+				&& configAccessory.name === accessory.context.config.name
+				&& configAccessory.number === accessory.context.config.number
+				&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory))))
 			.forEach((accessory) => {
 				this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory]);
 			});
@@ -149,6 +151,11 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	private handleMessage(
 		dataString: string,
 	): void {
+		if (dataString === Messages.successful) {
+			// Handled in SecuritySystemTargetAccessory
+			return;
+		}
+
 		let message: Message;
 
 		switch (dataString.length) {
@@ -317,16 +324,28 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 */
 	private socketStartUp(): void {
 		this.connection = net
-			.createConnection(this.config.port, this.config.host)
+			.createConnection({
+				host: this.config.host,
+				keepAlive: true,
+				noDelay: true,
+				port: this.config.port,
+			})
 			.setEncoding("utf8")
+			.setDefaultEncoding("utf8")
 			.on("connect", () => {
 				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
+
+				if (this.connection?.writable === true) {
+					this.connection.write(Requests.alarmStatus);
+				}
 			})
 			.on("error", (error: Error & { code?: string }) => {
 				if (error.code === "ECONNREFUSED") {
-					this.log.error("Unable to connect to %s:%s", this.config.host, this.config.port);
+					this.log.error("ECONNREFUSED : Unable to connect to %s:%s", this.config.host, this.config.port);
+				} else if (error.code === "ETIMEDOUT") {
+					this.log.error("ETIMEDOUT : Unable to connect to %s:%s", this.config.host, this.config.port);
 				} else {
-					this.log.error(error.message);
+					this.log.error("%s - %s", error.code, error.message);
 				}
 			})
 			.on("close", (hadError: boolean) => {
