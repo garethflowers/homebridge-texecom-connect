@@ -5,6 +5,7 @@
 				"dbaeumer.vscode-eslint",
 				"editorConfig.editorconfig",
 				"esbenp.prettier-vscode",
+				"github.vscode-github-actions",
 				"ms-vscode-remote.remote-containers",
 				"streetsidesoftware.code-spell-checker"
 			]
