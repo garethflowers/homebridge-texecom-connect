@@ -32,7 +32,6 @@ import { platformName, pluginName } from "./settings";
  * Texecom Connect Platform.
  */
 export class TexecomConnectPlatform implements DynamicPlatformPlugin {
-
 	public readonly accessories: PlatformAccessory<AccessoryContext>[];
 
 	public readonly accessoryEvent: EventEmitter;
@@ -53,11 +52,7 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 	private lastSocketResponse: number;
 
-	public constructor(
-		log: Logger,
-		config: PlatformConfig,
-		api: API,
-	) {
+	public constructor(log: Logger, config: PlatformConfig, api: API) {
 		this.api = api;
 		this.config = config as Config;
 		this.log = log;
@@ -70,12 +65,16 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 		this.sanitiseConfig();
 
-		this.configAccessories = [...this.config.areas, ...this.config.zones]
-			.filter((accessory: Partial<ConfigAccessory>) =>
-				typeof accessory.name === "string"
-				&& accessory.name.length > 1
-				&& typeof accessory.number === "number"
-				&& accessory.number > 0);
+		this.configAccessories = [
+			...this.config.areas,
+			...this.config.zones,
+		].filter(
+			(accessory: Partial<ConfigAccessory>) =>
+				typeof accessory.name === "string" &&
+				accessory.name.length > 1 &&
+				typeof accessory.number === "number" &&
+				accessory.number > 0,
+		);
 
 		this.api
 			.on("didFinishLaunching", this.onStartUp.bind(this))
@@ -85,10 +84,8 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	/**
 	 * Configure Accessory after Platform Init
 	 */
-	public configureAccessory(
-		accessory: PlatformAccessory<AccessoryContext>,
-	): void {
-		this.accessories.push(accessory);
+	public configureAccessory(accessory: PlatformAccessory): void {
+		this.accessories.push(accessory as PlatformAccessory<AccessoryContext>);
 	}
 
 	public getAccessoryId(
@@ -100,8 +97,9 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			.toFixed()
 			.padStart(accessoryLength, "0");
 
-		const idPrefix: Messages.disarmUpdate | Messages.zoneUpdate | string = prefix
-			?? (configAccessory.accessory === "security"
+		const idPrefix: Messages.disarmUpdate | Messages.zoneUpdate | string =
+			prefix ??
+			(configAccessory.accessory === "security"
 				? Messages.disarmUpdate
 				: Messages.zoneUpdate);
 
@@ -113,13 +111,28 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 */
 	private deprecateAccessories(): void {
 		this.accessories
-			.filter((accessory) => !this.configAccessories.some((configAccessory: ConfigAccessory) =>
-				configAccessory.accessory === accessory.context.config.accessory
-					&& configAccessory.name === accessory.context.config.name
-					&& configAccessory.number === accessory.context.config.number
-					&& accessory.UUID === this.api.hap.uuid.generate(this.getAccessoryId(configAccessory))))
+			.filter(
+				(accessory) =>
+					!this.configAccessories.some(
+						(configAccessory: ConfigAccessory) =>
+							configAccessory.accessory ===
+								accessory.context.config.accessory &&
+							configAccessory.name ===
+								accessory.context.config.name &&
+							configAccessory.number ===
+								accessory.context.config.number &&
+							accessory.UUID ===
+								this.api.hap.uuid.generate(
+									this.getAccessoryId(configAccessory),
+								),
+					),
+			)
 			.forEach((accessory) => {
-				this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory]);
+				this.api.unregisterPlatformAccessories(
+					pluginName,
+					platformName,
+					[accessory],
+				);
 			});
 	}
 
@@ -127,28 +140,34 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 * Discover new Accessories.
 	 */
 	private discoverDevices(): void {
-		this.configAccessories
-			.forEach((configAccessory: ConfigAccessory) => {
-				const uuid: string = this.api.hap.uuid.generate(this.getAccessoryId(configAccessory));
+		this.configAccessories.forEach((configAccessory: ConfigAccessory) => {
+			const uuid: string = this.api.hap.uuid.generate(
+				this.getAccessoryId(configAccessory),
+			);
 
-				let accessory: PlatformAccessory<AccessoryContext> | undefined =
-					this.accessories.find((acc: PlatformAccessory<AccessoryContext>) =>
-						acc.UUID === uuid);
+			let accessory: PlatformAccessory<AccessoryContext> | undefined =
+				this.accessories.find(
+					(acc: PlatformAccessory<AccessoryContext>) =>
+						acc.UUID === uuid,
+				);
 
-				if (accessory === undefined) {
-					accessory = new this.api.platformAccessory(configAccessory.name, uuid);
-					this.accessories.push(accessory);
-					this.api.registerPlatformAccessories(pluginName, platformName, [accessory]);
-				}
+			if (accessory === undefined) {
+				accessory = new this.api.platformAccessory(
+					configAccessory.name,
+					uuid,
+				);
+				this.accessories.push(accessory);
+				this.api.registerPlatformAccessories(pluginName, platformName, [
+					accessory,
+				]);
+			}
 
-				this.initAccessory(accessory, configAccessory);
-				this.api.updatePlatformAccessories([accessory]);
-			});
+			this.initAccessory(accessory, configAccessory);
+			this.api.updatePlatformAccessories([accessory]);
+		});
 	}
 
-	private handleMessage(
-		dataString: string,
-	): void {
+	private handleMessage(dataString: string): void {
 		let message: Message;
 
 		switch (dataString.length) {
@@ -185,20 +204,50 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 
 		switch (config.accessory) {
 			case "contact":
-				new ContactSensorAccessory(this, accessory as PlatformAccessory<AccessoryContext<ConfigZone>>);
+				new ContactSensorAccessory(
+					this,
+					accessory as PlatformAccessory<
+						AccessoryContext<ConfigZone>
+					>,
+				);
 				break;
 			case "smoke":
-				new SmokeSensorAccessory(this, accessory as PlatformAccessory<AccessoryContext<ConfigZone>>);
+				new SmokeSensorAccessory(
+					this,
+					accessory as PlatformAccessory<
+						AccessoryContext<ConfigZone>
+					>,
+				);
 				break;
 			case "carbon-monoxide":
-				new CarbonMonoxideSensorAccessory(this, accessory as PlatformAccessory<AccessoryContext<ConfigZone>>);
+				new CarbonMonoxideSensorAccessory(
+					this,
+					accessory as PlatformAccessory<
+						AccessoryContext<ConfigZone>
+					>,
+				);
 				break;
 			case "security":
-				new SecuritySystemAccessory(this, accessory as PlatformAccessory<AccessoryContext<ConfigArea>>);
-				new SecuritySystemTargetAccessory(this, accessory as PlatformAccessory<AccessoryContext<ConfigArea>>);
+				new SecuritySystemAccessory(
+					this,
+					accessory as PlatformAccessory<
+						AccessoryContext<ConfigArea>
+					>,
+				);
+				new SecuritySystemTargetAccessory(
+					this,
+					accessory as PlatformAccessory<
+						AccessoryContext<ConfigArea>
+					>,
+				);
 				break;
 			default:
-				new MotionSensorAccessory(this, accessory as PlatformAccessory<AccessoryContext<ConfigZone>>);
+				new MotionSensorAccessory(
+					this,
+					accessory as PlatformAccessory<
+						AccessoryContext<ConfigZone>
+					>,
+				);
 		}
 
 		this.log.info("Accessory Loaded:", accessory.displayName);
@@ -221,22 +270,24 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		this.socketVerify();
 	}
 
-	private parseData(
-		data: string | Buffer,
-	): void {
+	private parseData(data: string | Buffer): void {
 		const events: string[] | undefined = this.sanitiseEventData(data);
 
-		if (events === undefined
-			|| events.length === 0
-			|| events[0] === undefined) {
+		if (
+			events === undefined ||
+			events.length === 0 ||
+			events[0] === undefined
+		) {
 			return;
 		}
 
-		if (!events[0].startsWith("\"")) {
+		if (!events[0].startsWith('"')) {
 			this.log.debug("Socket Data:", events[0]);
 
 			if (this.connection?.destroyed === false) {
-				this.connection.destroy(new RangeError("Invalid data from SmartCOM"));
+				this.connection.destroy(
+					new RangeError("Invalid data from SmartCOM"),
+				);
 			}
 
 			return;
@@ -254,15 +305,17 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 		const maxPort: number = 65535;
 		const defaultPort: number = 10001;
 
-		this.config.port = typeof this.config.port === "number"
-			&& this.config.port >= 1
-			&& this.config.port <= maxPort
-			? Math.floor(this.config.port)
-			: defaultPort;
+		this.config.port =
+			typeof this.config.port === "number" &&
+			this.config.port >= 1 &&
+			this.config.port <= maxPort
+				? Math.floor(this.config.port)
+				: defaultPort;
 
-		this.config.host = typeof this.config.host === "string"
-			? this.config.host.trim()
-			: "127.0.0.1";
+		this.config.host =
+			typeof this.config.host === "string"
+				? this.config.host.trim()
+				: "127.0.0.1";
 
 		if (!Array.isArray(this.config.areas)) {
 			this.config.areas = [];
@@ -278,11 +331,11 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	): string[] | undefined {
 		return typeof data === "string" || Buffer.isBuffer(data)
 			? data
-				.toString()
-				.trim()
-				.split("\n")
-				.map((value: string) => value.trim())
-				.filter((value: string) => value.length > 0)
+					.toString()
+					.trim()
+					.split("\n")
+					.map((value: string) => value.trim())
+					.filter((value: string) => value.length > 0)
 			: undefined;
 	}
 
@@ -290,15 +343,17 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	 * Restarts the socket connection to SmartCom.
 	 */
 	private socketRestart(): void {
-		this.log.info("Reconnecting to SmartCom - %s:%s", this.config.host, this.config.port);
+		this.log.info(
+			"Reconnecting to SmartCom - %s:%s",
+			this.config.host,
+			this.config.port,
+		);
 
 		this.socketShutdown();
 
 		const reconnectTimeout: number = 10000;
 
-		global.setTimeout(
-			this.socketStartUp.bind(this),
-			reconnectTimeout);
+		global.setTimeout(this.socketStartUp.bind(this), reconnectTimeout);
 	}
 
 	/**
@@ -320,11 +375,19 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 			.createConnection(this.config.port, this.config.host)
 			.setEncoding("utf8")
 			.on("connect", () => {
-				this.log.info("Connected to SmartCom - %s:%s", this.config.host, this.config.port);
+				this.log.info(
+					"Connected to SmartCom - %s:%s",
+					this.config.host,
+					this.config.port,
+				);
 			})
 			.on("error", (error: Error & { code?: string }) => {
 				if (error.code === "ECONNREFUSED") {
-					this.log.error("Unable to connect to %s:%s", this.config.host, this.config.port);
+					this.log.error(
+						"Unable to connect to %s:%s",
+						this.config.host,
+						this.config.port,
+					);
 				} else {
 					this.log.error(error.message);
 				}
@@ -333,7 +396,11 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 				if (hadError) {
 					this.socketRestart();
 				} else {
-					this.log.info("Disconnected from SmartCom - %s:%s", this.config.host, this.config.port);
+					this.log.info(
+						"Disconnected from SmartCom - %s:%s",
+						this.config.host,
+						this.config.port,
+					);
 				}
 			})
 			.on("data", this.parseData.bind(this));
@@ -342,14 +409,13 @@ export class TexecomConnectPlatform implements DynamicPlatformPlugin {
 	private socketVerify(): void {
 		const verificationTimeout: number = 10000;
 
-		global.setTimeout(
-			() => {
-				if (this.lastSocketResponse === 0
-					&& this.connection?.destroyed === false) {
-					this.connection.destroy(new Error("No response from SmartCom"));
-				}
-			},
-			verificationTimeout);
+		global.setTimeout(() => {
+			if (
+				this.lastSocketResponse === 0 &&
+				this.connection?.destroyed === false
+			) {
+				this.connection.destroy(new Error("No response from SmartCom"));
+			}
+		}, verificationTimeout);
 	}
-
 }
